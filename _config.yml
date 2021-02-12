@@ -260,6 +260,12 @@ compress_html:
     envs: development
 
 
+# Collections
+collections:
+  drafts:
+    output: true  # Override Jekyll default: force publication of drafts.
+    permalink: /:categories/:title/
+
 # Defaults
 defaults:
   # _posts
@@ -270,6 +276,22 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
-      comments: # true
       share: true
-      related: true
+      subscribe: true
+      comments: false
+      related: false
+      sitemap: true
+
+  # _pages
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: single
+      author_profile: true
+      read_time: false
+      share: false
+      subscribe: false
+      comments: false
+      related: false
+      sitemap: true
