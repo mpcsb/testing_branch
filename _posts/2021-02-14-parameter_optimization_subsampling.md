@@ -34,7 +34,9 @@ For each size and combination of parameters, we randomly sample from the origina
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/hyperparam_sampling/one_param.png" | relative_url }})
 {% endcapture %}
- 
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
 
 We can see that the behaviour of the models is affected by the size of the sample - there are two components that are responsible for this: 
 1. Less data means less to learn -> the performance necessarily decreases.  
@@ -50,10 +52,15 @@ Let's focus on one parameter, min_sample_split and repeat the exploration a few 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/hyperparam_sampling/variance_mss.png" | relative_url }})
 {% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/hyperparam_sampling/mean_and_sd_.png" | relative_url }})
 {% endcapture %}
- 
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
 
 Smaller samples have a greater variance than larger samples - there are certainly odd combinations, in particular for a small dataset as this one (500 records).  
 Larger samples will have a significant overlap with the orignal dataset which means that there's less to vary in the training data, and the results should scatter much less.  
