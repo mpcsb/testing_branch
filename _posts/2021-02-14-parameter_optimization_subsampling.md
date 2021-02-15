@@ -1,9 +1,10 @@
 ---
 title: Exploring optimal parameters over sample sizes  
+excerpt: ""
 tags:
     - optimization
 header:
-  overlay_image: /assets/images/bonga.jpg 
+  overlay_image: /assets/images/header.jpg 
 share: true
 subscribe: true
 comments: true
@@ -48,9 +49,10 @@ Let's focus on one parameter, min_sample_split and repeat the exploration a few 
   <img src="https://github.com/mpcsb/testing_branch/blob/master/assets/images/hyperparam_sampling/variance_mss.png?raw=true" alt=""/>
 </p>  
 <p align="center">
-  <img src="https://github.com/mpcsb/testing_branch/blob/master/assets/images/hyperparam_sampling/mean_and_sd.png?raw=true" alt=""/>
+  <img src="https://github.com/mpcsb/testing_branch/blob/master/assets/images/hyperparam_sampling/mean_and_sd_.png?raw=true" alt=""/>
 </p>  
 
-Smaller samples have a greater variance than larger samples - there are certainly odd combinations, in particular for a small dataset as this one (500 records).
-Larger samples will have a significant overlap with the orignal dataset which means that there's less to vary in the training data, and the results should scatter much less.
+Smaller samples have a greater variance than larger samples - there are certainly odd combinations, in particular for a small dataset as this one (500 records).  
+Larger samples will have a significant overlap with the orignal dataset which means that there's less to vary in the training data, and the results should scatter much less.  
 For this implementation, even for sample sizes equal to the entire dataset, the order is not kept and this adds additional variation.  
+___
