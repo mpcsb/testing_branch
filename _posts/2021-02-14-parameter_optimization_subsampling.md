@@ -1,10 +1,10 @@
 ---
 title: Exploring optimal parameters over sample sizes  
 excerpt: ""
-tags:
-    - optimization
 header:
-  overlay_image: /assets/images/hyperparam_sampling/header.jpg 
+  image: /assets/images/hyperparam_sampling/header.jpg 
+tags:
+    - optimization 
 share: true
 subscribe: true
 comments: true
@@ -30,9 +30,11 @@ Let's pick then the well known Random Forest implementation by sklearn, and pick
 
 What we expect to find is evidence that smaller samples are still informative for the optimal parameters of the dataset (sample size=100%).  
 For each size and combination of parameters, we randomly sample from the original dataset, while keeping the random seed of the algorithm to maintain some amount of determinism.
-<p align="center">
-  <img src="assets/images/hyperparam_sampling/one_param.png?raw=true" alt=""/>
-</p>  
+
+{% capture fig_img %}
+![Foo]({{ "/assets/images/hyperparam_sampling/one_param.png" | relative_url }})
+{% endcapture %}
+ 
 
 We can see that the behaviour of the models is affected by the size of the sample - there are two components that are responsible for this: 
 1. Less data means less to learn -> the performance necessarily decreases.  
@@ -45,12 +47,13 @@ ___
 Let's explore the variation of the scores a bit further.  
 Let's focus on one parameter, min_sample_split and repeat the exploration a few times.  
 
-<p align="center">
-  <img src="assets/images/hyperparam_sampling/variance_mss.png?raw=true" alt=""/>
-</p>  
-<p align="center">
-  <img src="assets/images/hyperparam_sampling/mean_and_sd_.png?raw=true" alt=""/>
-</p>  
+{% capture fig_img %}
+![Foo]({{ "/assets/images/hyperparam_sampling/variance_mss.png" | relative_url }})
+{% endcapture %}
+{% capture fig_img %}
+![Foo]({{ "/assets/images/hyperparam_sampling/mean_and_sd_.png" | relative_url }})
+{% endcapture %}
+ 
 
 Smaller samples have a greater variance than larger samples - there are certainly odd combinations, in particular for a small dataset as this one (500 records).  
 Larger samples will have a significant overlap with the orignal dataset which means that there's less to vary in the training data, and the results should scatter much less.  
