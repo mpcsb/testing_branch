@@ -11,10 +11,8 @@ comments: true
 ---
 
 This is the first of two posts about finding optimal parameters for machine learning models, and is motivated by [Hyper-Parameter Optimization: A Review of Algorithms
-and Applications], where subsampling is discussed as a strategy to reduce the training time. It's stated that subsampling is risky in terms of the potential to introduce more noise and uncertainty.  
+and Applications], where subsampling is commented on a later section as a strategy to reduce the training time, and doing so, reduces the search time for optima. It's stated that subsampling is risky in terms of the potential to introduce more noise and uncertainty.  
 On this first post we're going to explore what this means for some well known methods (Random Forest and SVM), if somehow there is some ability to generalize information gained at smaller samples which can somehow lead to a reduction of the computational budget.  
-On the upcoming post we explore a simple method that illustrates how we can leverage the trade-off of the lesser information gained and the reduced computational load of subsampling.
-
 There are lessons that we expect to learn when exploring model performance and the amount of data it's given. A non-exaustive list:  
 1. Are there scale dependent parameters or combinations of parameters  
 2. How performance deteriorates and how much can be attributed to subsampling    
@@ -24,7 +22,7 @@ There are lessons that we expect to learn when exploring model performance and t
 ___
 
 The key thing we need to explore is how model performance changes when we feed the models less and less data.   
-Of course if models are not able to generalize what they learn from data, they're not very useful - but there is a sample size after which nothing relevant can be generalized.  
+Of course if models are not able to generalize what they learn from data, they're not very useful - but there is a size which serves as a boundary for lack of generalizing ability of the model.  
 
 Let's pick then the well known Random Forest implementation by sklearn, and pick 3 of the many parameters we are given. The task is the well known, and now polemic, Boston housing dataset.  
 
@@ -64,5 +62,11 @@ Let's focus on one parameter, min_sample_split and repeat the exploration a few 
 
 Smaller samples have a greater variance than larger samples - there are certainly odd combinations, in particular for a small dataset as this one (500 records).  
 Larger samples will have a significant overlap with the orignal dataset which means that there's less to vary in the training data, and the results should scatter much less.  
-For this implementation, even for sample sizes equal to the entire dataset, the order is not kept and this adds additional variation.  
+For this implementation, even for sample sizes equal to the entire dataset, the order is not kept and this adds additional variation, which is not only acceptable, but actually desirable to explore the inner workings of these methods.  
 ___
+
+Before trying to observe the same patterns in parameters combinations, other datasets or other models, let's take a minute and explore the distributions for the scores at each sample size. The reason is to start observing  the actual dynamics of these distributions as more data gets fed to the model, which is helpful for a method that uses information at smaller samples
+
+
+___
+On the upcoming post we explore a simple method that illustrates how we can leverage the trade-off of the lesser information gained and the reduced computational load of subsampling.
