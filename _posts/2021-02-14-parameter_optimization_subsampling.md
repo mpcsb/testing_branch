@@ -4,7 +4,7 @@ excerpt: ""
 tags:
     - optimization
 header:
-  overlay_image: /assets/images/header.jpg 
+  overlay_image: /assets/images/hyperparam_sampling/header.jpg 
 share: true
 subscribe: true
 comments: true
@@ -31,7 +31,7 @@ Let's pick then the well known Random Forest implementation by sklearn, and pick
 What we expect to find is evidence that smaller samples are still informative for the optimal parameters of the dataset (sample size=100%).  
 For each size and combination of parameters, we randomly sample from the original dataset, while keeping the random seed of the algorithm to maintain some amount of determinism.
 <p align="center">
-  <img src="https://github.com/mpcsb/testing_branch/blob/master/assets/images/hyperparam_sampling/one_param.png?raw=true" alt=""/>
+  <img src="assets/images/hyperparam_sampling/one_param.png?raw=true" alt=""/>
 </p>  
 
 We can see that the behaviour of the models is affected by the size of the sample - there are two components that are responsible for this: 
@@ -46,10 +46,10 @@ Let's explore the variation of the scores a bit further.
 Let's focus on one parameter, min_sample_split and repeat the exploration a few times.  
 
 <p align="center">
-  <img src="https://github.com/mpcsb/testing_branch/blob/master/assets/images/hyperparam_sampling/variance_mss.png?raw=true" alt=""/>
+  <img src="assets/images/hyperparam_sampling/variance_mss.png?raw=true" alt=""/>
 </p>  
 <p align="center">
-  <img src="https://github.com/mpcsb/testing_branch/blob/master/assets/images/hyperparam_sampling/mean_and_sd_.png?raw=true" alt=""/>
+  <img src="assets/images/hyperparam_sampling/mean_and_sd_.png?raw=true" alt=""/>
 </p>  
 
 Smaller samples have a greater variance than larger samples - there are certainly odd combinations, in particular for a small dataset as this one (500 records).  
