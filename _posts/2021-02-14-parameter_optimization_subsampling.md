@@ -2,7 +2,7 @@
 title: Exploring optimal parameters over sample sizes  
 excerpt: ""
 header:
-  overlay_image: /assets/images/hyperparam_sampling/header.jpg 
+  image: /assets/images/hyperparam_sampling/header.jpg 
 tags:
     - optimization 
 share: true
