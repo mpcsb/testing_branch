@@ -10,7 +10,7 @@ subscribe: true
 comments: true
 --- 
 
-This is the first of two posts about finding optimal parameters for machine learning models, and is motivated by [Hyper-Parameter Optimization: A Review of Algorithms and Applications](https://arxiv.org/abs/2003.05689), where subsampling is commented on a later section as a strategy to reduce the training time, and doing so, reduces the search time for optima. It's stated that subsampling is risky in terms of the potential to introduce more noise and uncertainty.  
+This is the first of two posts about finding optimal parameters for machine learning models, and is motivated by [Hyper-Parameter Optimization: A Review of Algorithms and Applications](https://arxiv.org/abs/2003.05689), where subsampling is commented on a later section, as a strategy to reduce the training time; and doing so, reduces the search time for necessary to find optimal values. It's stated that subsampling is risky in terms of the potential to introduce more noise and uncertainty.  
 On this first post we're going to explore what this means for some well known methods (Random Forest and SVM), if somehow there is some ability to generalize information gained at smaller samples which can somehow lead to a reduction of the computational budget.  
 There are lessons that we expect to learn when exploring model performance and the amount of data it's given. A non-exaustive list:  
 1. Are there scale dependent parameters or combinations of parameters  
@@ -62,11 +62,11 @@ Let's focus on one parameter, min_sample_split and repeat the exploration a few 
 Smaller samples have a greater variance than larger samples - there are certainly odd combinations, in particular for a small dataset as this one (500 records).  
 Larger samples will have a significant overlap with the orignal dataset which means that there's less to vary in the training data, and the results should scatter much less.  
 For this implementation, even for sample sizes equal to the entire dataset, the order is not kept and this adds additional variation, which is not only acceptable, but actually desirable to explore the inner workings of these methods.  
+
 ___
 
 Before trying to observe the same patterns hold in other scenarios, let's take a minute and explore the distributions for the scores at each sample size. The reason is to start observing  the actual dynamics of these distributions as more data gets fed to the model.  
-
-
+ 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/hyperparam_sampling/distributions.gif" | relative_url }})
 {% endcapture %}
@@ -103,8 +103,7 @@ We have two examples of combinations of parameters that support what we saw prev
 <figure>
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
-
-
+ 
 ___
 
 One final exploration with another model - a SVM - is carried out. There is no scaling of the features or anything remotely trying to maximize the performance; again, the point is to see that there is no dramatic changes to the model behaviour. 
@@ -124,4 +123,8 @@ A structured, yet simple, approach to how this exploration can be made, leveragi
 
 ___
 
-A final comment regarding different datasets. The threshold the determines when data is informative enough for the model to pick up patterns, seems to be data dependent. Rich datasets are a bit more demanding when it comes to how small samples can be.
+One comment regarding how different datasets affect what we observed above. There seems to be a point in the sample size after which the dataset is informative enough for the model to pick up patterns. Rich datasets are a bit more demanding when it comes to how small samples can be -- this adds another layer of variance to what we see.  
+In the next post of this series we'll tackle this in a principled way.  
+___
+
+Thanks for reading and let me know if you have anything to say.
