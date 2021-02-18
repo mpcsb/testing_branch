@@ -101,18 +101,18 @@ social:
     - "https://linkedin.com/in/miguelcbatista/"
 # Analytics
 analytics:
-  provider               : false # false (default), "google", "google-universal", "custom"
+  provider               : "google-universal" # false (default), "google", "google-universal", "custom"
   google:
-    tracking_id          :
+    tracking_id          : "G-GP59KET5S6"
     anonymize_ip         : # true, false (default)
 
 
 # Site Author
 author:
-  name             : "MCB"
+  name             : #"MB"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "I am an **amazing** person."
-  location         : "Somewhere"
+  bio              : #"I am an **amazing** person."
+  location         : #"Somewhere"
   email            :
   links:
     - label: "Email"
@@ -120,7 +120,7 @@ author:
       url: mailto:miguelcbatista@gmail.com
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
-      # url: "https://twitter.com/mpcbatista"
+      #url: "https://twitter.com/mpcbatista"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       # url: "https://github.com/mpcsb"
