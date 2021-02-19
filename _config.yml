@@ -19,7 +19,7 @@ locale                   : "en-US"
 title                    : "Testing Branch"
 title_separator          : "__"
 subtitle                 : # site tagline that appears below site title in masthead
-name                     : "Miguel Batista"
+name                     : "MBatista"
 description              : "Posts about tests about data science, simulations and computer science."
 url                      : "www.testingbranch.com"
 baseurl                  : # the subpath of your site, e.g. "/blog"
@@ -28,7 +28,7 @@ teaser                   : # path of fallback teaser image, e.g. "/assets/images
 logo                     : "/assets/images/logo.png" 
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
 # breadcrumbs            : false # true, false (default)
-words_per_minute         : 150
+words_per_minute         : 140
 comments:
   provider               : # false (default), "disqus", "discourse", "facebook", "staticman", "staticman_v2", "utterances", "custom"
   disqus:
