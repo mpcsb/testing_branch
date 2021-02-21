@@ -17,7 +17,7 @@ minimal_mistakes_skin    : "contrast" # "air", "aqua", "contrast", "dark", "dirt
 # Site Settings
 locale                   : "en-US"
 title                    : #"Testing Branch"
-title_separator          : "|"
+title_separator          : #"|"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "MBatista"
 description              : "Posts about tests about data science, simulations and computer science."
@@ -120,7 +120,7 @@ author:
       url: mailto:miguelcbatista@gmail.com
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
-      #url: "https://twitter.com/mpcbatista"
+      url: "https://twitter.com/mpcbatista"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       # url: "https://github.com/mpcsb"
