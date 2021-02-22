@@ -39,7 +39,11 @@ The model definition is shown below.
 import pymc3 as pm
 
 ```
-
+<iframe
+  src="https://carbon.now.sh/embed?bg=rgba%28187%2C187%2C187%2C1%29&t=solarized+light&wt=sharp&l=auto&ds=true&dsyoff=3px&dsblur=13px&wc=true&wa=true&pv=56px&ph=56px&ln=false&fl=1&fm=Hack&fs=14px&lh=133%25&si=false&es=2x&wm=false&code=import%2520pymc3%2520as%2520pm%250Aimport%2520numpy%2520as%2520np%250A"
+  style="width: 302px; height: 239px; border:0; transform: scale(1); overflow:hidden;"
+  sandbox="allow-scripts allow-same-origin">
+</iframe>
 
 ___
  
