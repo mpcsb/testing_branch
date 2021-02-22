@@ -45,3 +45,16 @@ As noise keeps getting added, the performance of the forecast decreases, as expe
 <figure>
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
+
+___
+
+One particular feature that I enjoy in gaussian processes is the ability to interpolate data nicely and allow for imputation of missing values in a principled way. Because we can draw samples from the model, we can generate distributions for each of the points in the series. We exclude it and, assuming the model is sufficiently well defined, collect percentile values for the values of the series.  
+Now, the outcome of this step seems redundant or a symptom of a weak model or a hard problem to model. However, the main objective is to show that the absence of outliers will generate a superior model, that reduces the modelling error significantly for the rest of the series.  
+
+This extra iteration over the entire series adds a significant amount of computing time to an already complex method - but this is a small series and a few seconds per model is nothing obscene
+Below we get to see the process for the series with minimal amount of noise.
+
+[image_gif_omitted]
+ 
+[image_percentiles]
+
