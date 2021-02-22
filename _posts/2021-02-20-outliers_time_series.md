@@ -36,10 +36,11 @@ The model definition is shown below.
 ```Python3
 1 + 1 # Adding two numbers
 
+import pymc3 as pm
+
 ```
-```<script src="https://gist.github.com/eigenfoo/0bc4047ea0245a3f5f3c3a6ff8143154.js"></script>
-```
-<script src="/assets/scripts/outliers_ts/model_definition.py"></script>
+
+
 ___
  
 A quick run indicates that the model captures the signal perfectly when there is no noise. 
