@@ -21,7 +21,7 @@ Predictive models are able to generalize what they learn from data, otherwise th
 Let's pick then the Random Forest implementation by sklearn, and pick three parameters as a start. The data is the Boston housing dataset, around 500 records which is a nice amount to perform some grid searches for these initial tests. I'll track the R² score obtained from cross validation.  
 
 What we expect to find is evidence that smaller samples are still informative to find the optimal parameters of the full dataset.  
-For each size and combination of parameters, we randomly sample from the original dataset, while keeping the random seed of the algorithm to maintain some amount of determinism.
+For each size and combination of parameters, we randomly sample from the original dataset, while keeping the random seed of the algorithm to maintain some amount of determinism.  
 The plots below show the results for grid search for the parameters. Keep the colorscale in mind; it's used for the rest of the plots.  
 
 {% capture fig_img %}
@@ -83,11 +83,11 @@ Below we can see that if we exclude very low sample sizes – there is a very si
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-On interesting aspect of these repeated draws at a specific sample size seems to be the bell shape of the distribution. Normality tests are passed and we can at least use this as information to model the behavior in the second post. 
+On interesting aspect of these repeated draws at a specific sample size seems to be the bell shape of the distribution. Normality tests are passed and we can at least use this as information to model the behavior in the second post.  
 
 ___
 
-One continuation to this exploration needs to be related with the relation between sample size and more than one parameter.  
+One continuation to this exploration needs to be related with the relation between sample size and more than one parameter.   
 We have two examples of combinations of parameters that support what we saw previously: the surfaces share plenty of similarities for various sample sizes, and most importantly, the parameters that maximize the R² score seem to be at the very least neighbours and at the very best the exact same.  
 
 {% capture fig_img %}
@@ -106,7 +106,7 @@ We have two examples of combinations of parameters that support what we saw prev
  
 ___
 
-One comment regarding how different datasets affect what we have observed. There seems to be a point in the sample size after which the dataset is informative enough for the model to pick up patterns. Rich datasets are a bit more demanding when it comes to how small samples can be – this adds another layer of variance to what we see and that is ignored for now. 
+One comment regarding how different datasets affect what we have observed. There seems to be a point in the sample size after which the dataset is informative enough for the model to pick up patterns. Rich datasets are a bit more demanding when it comes to how small samples can be – this adds another layer of variance to what we see and that is ignored for now.  
 
 ___
 
@@ -123,4 +123,4 @@ We can see that for the very smallest sample size, the maximum seems to be conte
 The second smallest sample already seems to converge to the optimal set of parameters and at this point we can make some comments that motivate the next post.  
 Our first method was the random forest, which scales quite nicely, log-linearly. SVMs on another hand have quadratic time complexity, and this is one aspect to explore and that motivates subsampling in this exploration.  
 To compute one model with the entire dataset it costs us the same as the cost of training seven in the second smallest sample size: there is intrinsic noise that comes from small samples, yet we can explore a lot more.     
-A structured, yet simple, approach to how this exploration can be made, leveraging the trade-off between information gained and reduced computational load, is the content of the next post.
+A structured, yet simple, approach to how this exploration can be made, leveraging the trade-off between information gained and reduced computational load, is the content of the next post.  
