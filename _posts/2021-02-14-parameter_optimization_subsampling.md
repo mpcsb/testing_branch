@@ -74,7 +74,7 @@ Before trying to observe the same patterns hold in other scenarios, let's take a
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-Below we can see that if we exclude very low sample sizes – that tend, there is a very significant overlap in the R² scores distributions. In other words, there is plenty of useful information at lower samples.   
+Below we can see that if we exclude very low sample sizes – there is a very significant overlap in the R² scores distributions. In other words, there is plenty of useful information at lower samples.   
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/hyperparam_sampling/distributions_0.gif" | relative_url }})
