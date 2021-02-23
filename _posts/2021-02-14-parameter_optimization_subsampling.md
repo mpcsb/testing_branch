@@ -83,7 +83,7 @@ Below we can see that if we exclude very low sample sizes – there is a very si
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-On interesting aspect of these repeated draws at a specific sample size seems to be the bell shape of the distribution. Normality tests are passed and we can at least use this as information to model the behavior in the second post.  
+On interesting aspect of these repeated draws at a specific sample size seems to be the bell shape of the distribution. Even with ceiling effects, normality tests are passed and we can at least use this as information to model the behavior in the second post.  
 
 ___
 
