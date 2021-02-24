@@ -57,5 +57,13 @@ Below we get to see the process for the series with minimal amount of noise.
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>  
  
-[image_percentiles]
+___
+
+
+{% capture fig_img %}
+![Foo]({{ "/assets/images/outliers_ts/interp_1_outlier.gif" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>  
 
