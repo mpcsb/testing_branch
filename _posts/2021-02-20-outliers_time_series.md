@@ -50,7 +50,12 @@ Now, the outcome of this step seems redundant or a symptom of a weak model/a har
 This extra iteration over the entire series adds a significant amount of computing time to an already complex method - but this is a small series and a few seconds per model is nothing obscene
 Below we get to see the process for the series with minimal amount of noise.
 
-[image_gif_omitted]
+{% capture fig_img %}
+![Foo]({{ "/assets/images/outliers_ts/interp.gif" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>  
  
 [image_percentiles]
 
