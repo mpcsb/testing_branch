@@ -30,27 +30,17 @@ Let's create a small series which has the following decomposition:
 We need to create a generating model which will be critical to evaluate the likelihood of a point being an outlier. Let's not use the entirity of our knowledge of the series.
 For a series this simple, we'll use a gaussian processes regression, and we'll define the covariance function as the sum of the Matérn 5/2 kernel and a periodic kernel of period 12. We also define a linear mean funcion, with the slope defined with by a random variable that is inferred using MCMC.  
 This is as a plausible injection of basic yet _informative_ priors to the model. More complex series may require complex models, which are harder to sample and harder to illustrate the idea of the post.  
-
-The model definition is shown below.
-
  
-<iframe
-  src="https://carbon.now.sh/embed?bg=rgba%28255%2C255%2C255%2C1%29&t=seti&wt=bw&l=auto&ds=true&dsyoff=41px&dsblur=63px&wc=true&wa=false&pv=14px&ph=35px&ln=false&fl=1&fm=Hack&fs=12.5px&lh=119%25&si=false&es=2x&wm=true"
-  style="width: 680px; height: 288px; border:0; transform: scale(1); overflow:hidden;"
-  sandbox="allow-scripts allow-same-origin">
-</iframe>
-
 ___
  
-A quick run indicates that the model captures the signal perfectly when there is no noise. 
-As noise keeps getting added, the performance of the forecast decreases, as expected.  
+A quick test, performing a 12 month forecast, shows the model capturing the signal pretty well when there is no noise, and as the noise magnitude increases,the predictive ability decreases, as expected.    
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/outliers_ts/forecast_snr.gif" | relative_url }})
 {% endcapture %}
 <figure>
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
-</figure>
+</figure>  
 
 ___
 
