@@ -70,7 +70,7 @@ The key idea behind this post is the superior model that is trained when outlier
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>  
 
-This is a trivial case, when we have just one outlier. In case of more than one, the absence of one of the outlier is no longer sufficient to obtain a clear signal — depending on the magnitude of the outlier, the perturbation it adds makes any modelling quite hard.  
+In case of more than one outlier, the problem stops being trivial; the absence of one of the outlier is no longer sufficient for the model to obtain a clear signal — depending on the magnitude of the outlier, the perturbation it adds makes any modelling quite hard, forcing the removal of another data point. 
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/outliers_ts/interp_2_outlier_2.gif" | relative_url }})
@@ -79,7 +79,12 @@ This is a trivial case, when we have just one outlier. In case of more than one,
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>  
 
-We can see the model seems to improve when any of the outliers are removed; measuring this improvement might be sufficient to list outlier candidates and then removing the combinations of elements of this list.  
-It's still hard to generate some heuristic that generalizes for most outliers — any value with an offset large enough from the original time series is easily detectable, but after removed, requires one additional loop over the remaining points; even with a small amount of data, it gets prohibitive.
+We can see the model seems to improve when any of the outliers are removed; measuring this improvement might be sufficient to list outlier candidates and then removing the combinations of elements of this list to find out the most promising set.  
+It's still hard to generate some heuristic that generalizes for most outliers — any value with an offset large enough from the original time series is easily detectable, but after removed, requires one additional loop over the remaining points; even with a small amount of data, it gets prohibitive.  
+
+___
+
+The main conclusions taken from this post is that outliers are hard to evaluate, unless if specific cases.  
+Here, knowledge of the system was needed to build a _good enough_ model; of the amount of noise that influences the process ; and the of how many outliers are in series were essential. In a real world scenario, this is not the case, but it may still serve as an exploratory step.
 
 
