@@ -10,7 +10,7 @@ subscribe: true
 comments: true
 --- 
 
-This is essentially a back of the envolope study for the identification of outliers in time series. The idea is to sketch a method that associates model quality to the presence of outliers.  
+This is essentially a back of the envelope study for the identification of outliers in time series. The idea is to sketch a method that associates model quality to the presence of outliers.  
 When dealing with data which does not follow time, finding outliers is hard, but even simple approaches might yield decent results. Setting a threshold for the percentile that determines what is a classifier works nicely in one dimensional data, and might even be useful in low dimensional data. To make sure, add a Bonferroni Outlier test and whatever you decide, it has some support.  
 For time series that evidently not a satisfying answer. Even very rare values can be periodical; this is in fact a common pattern.  
 
@@ -70,7 +70,7 @@ The key idea behind this post is the superior model that is trained when outlier
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>  
 
-This is a trivial case, when we have just one outlier. In case of more than one, the absence of one of the outlier is no longer sufficient to obtain a clear signal - depending on the magnitude of the outlier, the perturbation it adds makes modelling quite hard.  
+This is a trivial case, when we have just one outlier. In case of more than one, the absence of one of the outlier is no longer sufficient to obtain a clear signal — depending on the magnitude of the outlier, the perturbation it adds makes any modelling quite hard.  
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/outliers_ts/interp_2_outlier_2.gif" | relative_url }})
@@ -79,4 +79,7 @@ This is a trivial case, when we have just one outlier. In case of more than one,
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>  
 
-We can see the model seems to improve when both outliers are removed, but it's still hard to generate some heuristic that holds for most outliers -- any value with large magnitude is easily detectable, but after removed, requires one additional loop over the remaining points; not only is this not scalable, but even with a small amount of data, it gets prohibitive. 
+We can see the model seems to improve when any of the outliers are removed; measuring this improvement might be sufficient to list outlier candidates and then removing the combinations of elements of this list.  
+It's still hard to generate some heuristic that generalizes for most outliers — any value with an offset large enough from the original time series is easily detectable, but after removed, requires one additional loop over the remaining points; even with a small amount of data, it gets prohibitive.
+
+
