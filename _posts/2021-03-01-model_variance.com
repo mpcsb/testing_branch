@@ -1,6 +1,6 @@
 ---
 title: Comparing high and low variance models with noisy data  
-excerpt: ""
+excerpt: "exploration of performance of machine learning models on noisy data. How gradient boosted machines compare with linear regression and other low variance models"
 header:
   image: /assets/images/hyperparam_sampling/header.jpg  
 tags:
