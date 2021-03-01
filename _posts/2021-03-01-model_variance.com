@@ -2,8 +2,7 @@
 title: Comparing high and low variance models with noisy data  
 excerpt: ""
 header:
-  teaser: /assets/images/hyperparam_sampling/header.jpg 
-  image:  /assets/images/hyperparam_sampling/header.jpg 
+  teaser: /assets/images/hyperparam_sampling/header.jpg  
 tags:
     - machine learning 
 share: true
