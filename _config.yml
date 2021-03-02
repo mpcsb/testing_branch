@@ -120,13 +120,13 @@ author:
       url: mailto:miguelcbatista@gmail.com
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/mpcbatista"
+      # url: "https://twitter.com/mpcbatista"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       # url: "https://github.com/mpcsb"
     - label: "Linkedin"
       icon: "fab fa-fw fa-linkedin"
-      url: "https://www.linkedin.com/in/miguelcbatista/"
+      # url: "https://www.linkedin.com/in/miguelcbatista/"
 
 # Site Footer
 #footer:
