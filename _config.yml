@@ -16,8 +16,8 @@ minimal_mistakes_skin    : "contrast" # "air", "aqua", "contrast", "dark", "dirt
 
 # Site Settings
 locale                   : "en-US"
-title                    : #"Testing Branch"
-title_separator          : #"|"
+title                    : "Testing Branch"
+title_separator          : "|"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "MBatista"
 description              : "Posts about tests about data science, simulations and computer science."
@@ -28,7 +28,7 @@ teaser                   : # path of fallback teaser image, e.g. "/assets/images
 logo                     : "/assets/images/logo.png" 
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
 # breadcrumbs            : false # true, false (default)
-words_per_minute         : 140
+words_per_minute         : 150
 comments:
   provider               : # false (default), "disqus", "discourse", "facebook", "staticman", "staticman_v2", "utterances", "custom"
   disqus:
