@@ -33,3 +33,26 @@ header:
 excerpt: "Bacon ipsum dolor sit amet salami ham hock ham, hamburger corned beef short ribs kielbasa biltong t-bone drumstick tri-tip tail sirloin pork chop."
 ---
 ```
+
+
+
+
+
+```python
+def firstUniqChar(: str) -> int:     
+    for i in range(len(s)-1):
+        unique = True
+        for j in range(i+1, len(s)):
+          # loop through all other characters
+          # if character is no match for all of them we found a unique one
+          # if character does match, not unique, continue with next
+          # print(f"Comparing {s[i]} with {s[j]} ")
+          if s[i] == s[j]:
+            unique = False
+        if unique == True:
+          return i
+      # No unique chars found
+    return -1 
+```
+
+
