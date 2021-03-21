@@ -18,8 +18,21 @@ This post is an exploration based on this [quora answer](https://www.quora.com/W
 
 [conclusions]  
 
+<link href="scripts/highlightjs/styles/github-gist.css" rel="stylesheet" />
+<script src="scripts/highlightjs/highlight.pack.js"></script>
 
-`your_highlighted_text`    
- 
----  
-`vvvvvv`
+<!--<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">-->
+<!--<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>-->
+
+<script>
+function highlightCode() {
+    var pres = document.querySelectorAll("pre>code");
+    for (var i = 0; i < pres.length; i++) {
+        hljs.highlightBlock(pres[i]);
+    }
+}
+highlightCode();
+</script>
+
+</body>
+</html>
