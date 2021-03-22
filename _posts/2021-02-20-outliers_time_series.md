@@ -1,6 +1,6 @@
 ---
 title: Identifying outliers in time series  
-excerpt: ""
+excerpt: "Observing the impact of outliers in small time series"
 header:
   image: /assets/images/outliers_ts/header.jpg 
 tags:
