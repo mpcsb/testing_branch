@@ -1,6 +1,6 @@
 ---
-title: Exploring optimal parameters with subsampling  
-excerpt: ""
+title: Finding optimal parameters with subsampling  
+excerpt: "Exploring hyperparemeter spaces for machine learning models varies with subsampled data"
 header:
   image: /assets/images/hyperparam_sampling/header.jpg 
 tags:
@@ -121,6 +121,6 @@ One final exploration with a SVM is carried out. There is no scaling of the feat
 
 We can see that for the very smallest sample size, the maximum seems to be contested by two distinct locations in the parameter space. Small samples are troublesome as we've seen and different algorithms scale differently.  
 The second smallest sample already seems to converge to the optimal set of parameters and at this point we can make some comments that motivate the next post.  
-Our first method was the random forest, which scales quite nicely, log-linearly. SVMs on another hand have quadratic time complexity, and this is one aspect to explore and that motivates subsampling in this exploration.  
+Our first method was the random forest, which scales nicely, log-linearly. SVMs on another hand have quadratic time complexity, and this is one aspect to explore and that motivates subsampling in this exploration.  
 To compute one model with the entire dataset it costs us the same as the cost of training seven in the second smallest sample size: there is intrinsic noise that comes from small samples, yet we can explore a lot more.     
 A structured, yet simple, approach to how this exploration can be made, leveraging the trade-off between information gained and reduced computational load, is the content of the next post.  
