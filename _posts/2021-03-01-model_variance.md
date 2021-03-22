@@ -38,7 +38,7 @@ excerpt: "Bacon ipsum dolor sit amet salami ham hock ham, hamburger corned beef 
 
 
 
-```python
+```python3
 def firstUniqChar(: str) -> int:     
     for i in range(len(s)-1):
         unique = True
