@@ -2,7 +2,7 @@
 title: Combining explorations at different sample sizes  
 excerpt: "Exploring hyperparemeter spaces by subsampling: probing and fusion of explorations"
 header:
-  image: /assets/images/bayes_opt_variation/header.jpg  
+  overlay_image: /assets/images/bayes_opt_variation/header.jpg  
 tags:
     - machine learning 
     - optimization
