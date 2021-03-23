@@ -2,7 +2,7 @@
 title: Identifying outliers in time series  
 excerpt: "Observing the impact of outliers in small time series"
 header:
-  image: /assets/images/outliers_ts/header.jpg 
+  overlay_image: /assets/images/outliers_ts/header.jpg 
 tags:
     -  time series
 share: true
