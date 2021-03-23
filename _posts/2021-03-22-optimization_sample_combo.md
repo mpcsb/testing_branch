@@ -1,6 +1,6 @@
 ---
-title: Combining explorations at different sample sizes  
-excerpt: "Exploring hyperparemeter spaces by subsampling: probing and fusion of explorations"
+title: Subsampling as a strategy to find optimal parameters: part 2  
+excerpt: "Probing and fusing parameter space explorations"
 header:
   overlay_image: /assets/images/bayes_opt_variation/header.jpg  
 tags:
