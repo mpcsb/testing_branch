@@ -2,7 +2,7 @@
 title: Finding optimal parameters with subsampling  
 excerpt: "Exploring hyperparemeter spaces for machine learning models varies with subsampled data"
 header:
-  image: /assets/images/hyperparam_sampling/header.jpg 
+  overlay_image: /assets/images/hyperparam_sampling/header.jpg 
 tags:
     - optimization 
 share: true
