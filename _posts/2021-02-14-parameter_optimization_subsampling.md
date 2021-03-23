@@ -1,5 +1,5 @@
 ---
-title:  Subsampling to find optimal parameters
+title:  Subsampling as a strategy to find optimal parameters
 excerpt: "Using smaller samples to find location of optimal parameters for machine learning models: part 1"
 header:
   overlay_image: /assets/images/hyperparam_sampling/header.jpg 
