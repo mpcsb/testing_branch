@@ -16,7 +16,7 @@ minimal_mistakes_skin    : "contrast" # "air", "aqua", "contrast", "dark", "dirt
 
 # Site Settings
 locale                   : "en-US"
-title                    : "Testing Branch"
+title                    : 
 title_separator          : "|"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "MBatista"
@@ -26,7 +26,7 @@ baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "mpcsb/testing_branch" # "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : "/assets/images/logo.png" 
-masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
+masthead_title           : "Testing Branch"
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 150
 comments:
