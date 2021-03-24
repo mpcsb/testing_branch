@@ -24,7 +24,8 @@ Some preliminary thoughts:
 
 ---
 
-Let's take this [example](https://github.com/fmfn/BayesianOptimization/blob/master/examples/sklearn_example.py) from bayes_opt and observe the standard bayesian optimizer run 100 models with the full dataset -- 10 randomly to get acquinted with the model's response and 90 to find the optimum.  
+Let's take this [example](https://github.com/fmfn/BayesianOptimization/blob/master/examples/sklearn_example.py) from bayes_opt and observe the standard bayesian optimizer run 100 models with the full dataset -- 10 randomly to get acquinted with the model's response and 90 to find the optimum.   
+Let's do a quick run in a fairly exploratory mode:  
 
 ```
 Optimizing Random Forest: 100 models; budget: 100 
@@ -43,13 +44,45 @@ Optimizing Random Forest: 100 models; budget: 100
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
+```
+Optimizing Random Forest: 100 models; budget: 100
+|   iter    |  target   | max_fe... | min_sa... | n_esti... |
+=============================================================
+|  4        | -0.3423   |  0.4902   |  0.02077  |  10.02    |
+|  5        | -0.3404   |  0.999    |  0.01     |  10.0     |
+|  6        | -0.3149   |  0.9771   |  0.01587  |  188.5    |
+|  12       | -0.2959   |  0.999    |  0.01     |  96.31    |
+|  16       | -0.2946   |  0.999    |  0.01     |  141.4    |
+|  51       | -0.2943   |  0.999    |  0.01     |  122.7    |
+|  95       | -0.2942   |  0.999    |  0.01     |  126.5    |
+=============================================================
+``` 
+
+{% capture fig_img %}
+![Foo]({{ "/assets/images/bayes_opt_variation/full_1_exploit.png" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
+
+---
+
 To benchmark all the variants in the exploration we should have the same compute time to run 100 models; let's consider negligeble the compute time for the gaussian process that fits the hyperparameter space, even though it isn't 1) as observations grow, 2) as the hyperparameter space grows; 3) and if the model function is not to expensive to compute.   
 Some remarks:   
 1. Computational budget: we provide enough time to run a fixed number of models on the entire dataset. The budget is divided between different sample sizes, and for each size, we can compute a quantity of models given by the complexity relation.     
 2. Fixing the lower percentage that samples the dataset. This can be tuned depending on the complexity of the data.
 3. How many sample sizes should we explore?
 4. What strategy to use when dividing the budget: equally over sample sizes or something more complex?
- 
+
+---
+
+The key concern here is how to fuse the information gathered at one level and pass it to the next.  
+Bayes_opt has a couple of functionalities that work out nicely for this: passing points to probe (to highlight peaks and areas of interest that were discovered previously) and adjusting the boundaries in order not to explore flat areas; the second feature is adjusting the strategy of exploration. Exploring at lower samples and exploiting at higher samples seems promissing.   
+The other simple way to pass information to the following sample size is to copy the hyperparameters (word of the day, right?) of the gaussian process after it was fitted and optimized to the observations.   
+
+
+The logs and figures below show the result of a 3 sample size split, with sample percentages in the following set: 30%, 70%, 100%, where the computational budget (the equivalent of training 100 models with the full dataset) was split evenly.  
+This seems to be a decent strategy as it could find something close to the standard approach.
 
 Sample percentage:30%
 ```
@@ -104,12 +137,14 @@ Optimizing Random Forest: 33 models; budget: 33
 </figure>
 ---
 
-The key concern here is how to fuse the information gathered at one level and pass it to the next.  
-Bayes_opt has a couple of functionalities that work out for this: passing points to probe (to highlight peaks and areas of interest that were discovered previously) and adjusting the boundaries in order not to explore flat areas; the second feature is adjusting the strategy of exploration. Exploring at lower samples and exploiting at higher samples seems promissing.   
+
+---
+To conclude, this was not an exhaustive search of how subsampling can be used to search optimal points in teh hyperparameter space. The code below has some implementations that can be used to explore different budget dividing strategies; different amounts of noise which model the variance associated with lower samples; exploit vs explore trade-off;...   
+One thought that seems promissing is the exploration of higher dimensional spaces at lower samples seems at least more effective than relying on very expensive model full dataset training. For models with higher complexity this should be evident.  
 
 
 ---
-### Code to replicate figures
+#### Code to replicate the figures above
 
 ```python
 from sklearn.datasets import make_classification
