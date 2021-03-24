@@ -5,6 +5,7 @@ title: "About"
 subscribe: true
 --- 
 
-This is a personal blog with posts containing experiments or tests I've carried out over time (with some cosmetics and enough commentary) and things I find interesting.  
-Think of it as stuff that used to reside in a sandbox and it's now being shared.  
+This is a personal blog containing experiments or tests I've carried out over time: something that would reside in a sandbox or a branch created to test some off feature.   
+All post will likely get better cosmetics and a clearer narrative to make points stick, so it's likely that some evolution takes place.  
+
 Let me know what you think!
