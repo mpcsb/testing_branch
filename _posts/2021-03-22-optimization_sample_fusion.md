@@ -25,7 +25,8 @@ Some preliminary thoughts:
 ---
 
 Let's take this [example](https://github.com/fmfn/BayesianOptimization/blob/master/examples/sklearn_example.py) from bayes_opt and observe the standard bayesian optimizer run 100 models with the full dataset -- 10 randomly to get acquinted with the model's response and 90 to find the optimum.   
-Let's do a quick run in a fairly exploratory mode:  
+
+Let's do a quick run in an exploratory mode:  
 
 ```
 Optimizing Random Forest: 100 models; budget: 100 
@@ -44,6 +45,8 @@ Optimizing Random Forest: 100 models; budget: 100
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
+
+And another run promoting exploitation:  
 ```
 Optimizing Random Forest: 100 models; budget: 100
 |   iter    |  target   | max_fe... | min_sa... | n_esti... |
@@ -65,14 +68,16 @@ Optimizing Random Forest: 100 models; budget: 100
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
+Both runs seem to converge to the same area. Let's add subsampling to it.   
+
 ---
 
 To benchmark all the variants in the exploration we should have the same compute time to run 100 models; let's consider negligeble the compute time for the gaussian process that fits the hyperparameter space, even though it isn't 1) as observations grow, 2) as the hyperparameter space grows; 3) and if the model function is not to expensive to compute.   
 Some remarks:   
 1. Computational budget: we provide enough time to run a fixed number of models on the entire dataset. The budget is divided between different sample sizes, and for each size, we can compute a quantity of models given by the complexity relation.     
-2. Fixing the lower percentage that samples the dataset. This can be tuned depending on the complexity of the data.
-3. How many sample sizes should we explore?
-4. What strategy to use when dividing the budget: equally over sample sizes or something more complex?
+2. Fixing the lower percentage that samples the dataset. This can be tuned depending on the complexity of the data.   
+3. How many sample sizes should we explore?   
+4. What strategy to use when dividing the budget: equally over sample sizes or something more complex?   
 
 ---
 
@@ -81,10 +86,10 @@ Bayes_opt has a couple of functionalities that work out nicely for this: passing
 The other simple way to pass information to the following sample size is to copy the hyperparameters (word of the day, right?) of the gaussian process after it was fitted and optimized to the observations.   
 
 
-The logs and figures below show the result of a 3 sample size split, with sample percentages in the following set: 30%, 70%, 100%, where the computational budget (the equivalent of training 100 models with the full dataset) was split evenly.  
-This seems to be a decent strategy as it could find something close to the standard approach.
+The logs and figures below show the result of a 3 sample size split, with sample percentages in the following set: 30%, 70%, 100%, where the computational budget (the equivalent of training 100 models with the full dataset) was split evenly.   
+This seems to be a decent strategy as it could find something close to the standard approach.   
 
-Sample percentage:30%
+Sample percentage:30%   
 ```
 Optimizing Random Forest: 148 models; budget: 33 
 |   iter    |  target   | max_fe... | min_sa... | n_esti... |
@@ -104,7 +109,7 @@ Optimizing Random Forest: 148 models; budget: 33
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-Sample percentage:70%
+Sample percentage:70%   
 ```
 Optimizing Random Forest: 57 models; budget: 33
 |   iter    |  target   | max_fe... | min_sa... | n_esti... |
@@ -121,7 +126,7 @@ Optimizing Random Forest: 57 models; budget: 33
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-Sample percentage:100%
+Sample percentage:100%   
 ```
 Optimizing Random Forest: 33 models; budget: 33 
 |   iter    |  target   | max_fe... | min_sa... | n_esti... |
@@ -134,13 +139,12 @@ Optimizing Random Forest: 33 models; budget: 33
 {% endcapture %}
 <figure>
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
-</figure>
----
-
+</figure> 
 
 ---
-To conclude, this was not an exhaustive search of how subsampling can be used to search optimal points in teh hyperparameter space. The code below has some implementations that can be used to explore different budget dividing strategies; different amounts of noise which model the variance associated with lower samples; exploit vs explore trade-off;...   
-One thought that seems promissing is the exploration of higher dimensional spaces at lower samples seems at least more effective than relying on very expensive model full dataset training. For models with higher complexity this should be evident.  
+
+To conclude, this was not an exhaustive search of how subsampling can be used to search optimal points in teh hyperparameter space. The code below has some implementations that can be used to explore different budget dividing strategies; different amounts of noise which model the variance associated with lower samples; exploit vs explore trade-off; ...    
+One thought that seems promissing is the exploration of higher dimensional spaces at lower samples seems at least more effective than relying on very expensive model full dataset training. For models with higher complexity this should be evident.   
 
 
 ---
