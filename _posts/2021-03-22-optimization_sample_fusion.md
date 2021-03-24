@@ -12,21 +12,26 @@ comments: true
 --- 
 
 
-This follow up to this [post](https://www.testingbranch.com/parameter_optimization_subsampling/) where we explore the changes in the output of machine learning models when they are trained on samples of varying sizes.   
-This second part will try to explore a bit deeper in what circumstances subsampling is helpful; compare convergence speeds with a standard bayesian optimization approach; and observe if there's a strategy to how we spend our computational budget.  
+This is the continuation to this [post](https://www.testingbranch.com/parameter_optimization_subsampling/) where we explore the changes in the output of machine learning models when they are trained on samples of varying sizes.   
 
 ---
 
-Some preliminary thoughts:  
+Some preliminary thoughts and conclusions from the last post:  
 1. Complexity of the models determine how profitable it is to explore in lower samples. For quadratic algorithms and ignoring the actual implementation, training one model with a full dataset should cost the same amount of time as training 6.25 with 40% of that dataset.   
 2. Before a threshold sampling percentage, the results of a model are not informative for the full dataset. Being greedy doesn't help here.  
-3. Overall, models at smaller samples seem to be noisier images of the full dataset models.
+3. Overall, models at smaller samples seem to be noisier images of the full dataset trained models.
 
 ---
 
-Let's take this [example](https://github.com/fmfn/BayesianOptimization/blob/master/examples/sklearn_example.py) from bayes_opt and observe the standard bayesian optimizer run 100 models with the full dataset -- 10 randomly to get acquinted with the model's response and 90 to find the optimum.   
+Let's take this [example](https://github.com/fmfn/BayesianOptimization/blob/master/examples/sklearn_example.py) from [bayes_opt](https://github.com/fmfn/BayesianOptimization).   
+We want to optimize over a 3d space composed of random forest parameters (max_features, min_sample_split, trees) where the model is evaluated a cross-validated negative log-loss score.  
+A standard bayesian optimizer runs 100 models with a synthetically generated dataset with a binary target.  
 
-Let's do a quick run in an exploratory mode:  
+
+Let's do a run in an exploratory mode: focusing one exploring the landscape instead of necessarily exploiting regions near local or global maxima. 
+
+The logs below print how many models were ran during the bayesian optimization and the computational budget it consumed.   
+We print the best combination of parameters until the last iteration. During this process, the best model was found in iteration 13 and the remaining 87 never resulted in a superior model.  
 
 ```
 Optimizing Random Forest: 100 models; budget: 100 
@@ -38,6 +43,8 @@ Optimizing Random Forest: 100 models; budget: 100
 =============================================================
 ``` 
 
+The figure below shows a fairly explored space, where some regions clearly seem to have more performant models (lighter tone in the color scale).   
+
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayes_opt_variation/full_1.png" | relative_url }})
 {% endcapture %}
@@ -46,7 +53,7 @@ Optimizing Random Forest: 100 models; budget: 100
 </figure>
 
 
-And another run promoting exploitation:  
+Another run promoting a more balanced relation between exploration and exploitation:     
 ```
 Optimizing Random Forest: 100 models; budget: 100
 |   iter    |  target   | max_fe... | min_sa... | n_esti... |
@@ -68,26 +75,30 @@ Optimizing Random Forest: 100 models; budget: 100
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-Both runs seem to converge to the same area. Let's add subsampling to it.   
+Both strategies seem to be effective exploring the parameters. Let's add subsampling to it.   
 
 ---
 
-To benchmark all the variants in the exploration we should have the same compute time to run 100 models; let's consider negligeble the compute time for the gaussian process that fits the hyperparameter space, even though it isn't 1) as observations grow, 2) as the hyperparameter space grows; 3) and if the model function is not to expensive to compute.   
+To benchmark all the variants in the exploration we fix the same compute budget, that is, the same that is needed to run 100 models with the full dataset.  
+Let's consider negligeble the compute time for the gaussian process that fits the hyperparameter space, even though it isn't: 1) as observations grow; 2) as the hyperparameter space grows; 3) and if the model function is not too expensive to compute.   
+
 Some remarks:   
-1. Computational budget: we provide enough time to run a fixed number of models on the entire dataset. The budget is divided between different sample sizes, and for each size, we can compute a quantity of models given by the complexity relation.     
-2. Fixing the lower percentage that samples the dataset. This can be tuned depending on the complexity of the data.   
-3. How many sample sizes should we explore?   
-4. What strategy to use when dividing the budget: equally over sample sizes or something more complex?   
+1. The computational budget is divided between different sample sizes, and for each size, we can quantify a quantity of models given by the complexity relation. Random forests are assumed to be log-linear; SVMs are considered to be quadratic. Abstracting some implmentation details is acceptable to get started.       
+2. The lowest percentage which samples the dataset is fixed and it should be tuned depending on the complexity of the data. 1% of the data may be enough to learn the target.  
+3. How many sample sizes should we explore? Not enough has been explored here, but it seems to be again contingent on the data.     
+4. What strategy to use when dividing the budget: evenly over the various sample sizes or something more complex?   
 
 ---
 
-The key concern here is how to fuse the information gathered at one level and pass it to the next.  
-Bayes_opt has a couple of functionalities that work out nicely for this: passing points to probe (to highlight peaks and areas of interest that were discovered previously) and adjusting the boundaries in order not to explore flat areas; the second feature is adjusting the strategy of exploration. Exploring at lower samples and exploiting at higher samples seems promissing.   
-The other simple way to pass information to the following sample size is to copy the hyperparameters (word of the day, right?) of the gaussian process after it was fitted and optimized to the observations.   
+The key concern once the exploration in a sample is completed, is how to pass the information gathered and pass it to the next (larger) sample exploration.  
+A simple step is to pass promissing points to probe; adjusting the domain of the parameters in order not to explore flat areas is promissing but not easy to implement in bayes_opt; another simple way to pass information is to copy the posterior (after fitting to the observations) covariance function of the underlying gaussian process and use it as a prior to the optimization process of the following sample.   
 
+Some ideas to make subsampled bayesian optimization more clever where: 1) to make the strategy of exploration sample size dependent. Exploring at lower samples and exploiting at higher samples seems a good heuristic; 2) to add a noise term to the gaussian process that is dependent on the sample size. This is to model the higher variance at lower samples.    
 
-The logs and figures below show the result of a 3 sample size split, with sample percentages in the following set: 30%, 70%, 100%, where the computational budget (the equivalent of training 100 models with the full dataset) was split evenly.   
-This seems to be a decent strategy as it could find something close to the standard approach.   
+---
+
+The logs and figures below show the result of a 3 sample size split, with sample percentages in the following set: [30%, 70%, 100%], where the computational budget (the equivalent of training 100 models with the full dataset) was split evenly.   
+Notice that the same budget allows for a very different amount of models at each sample size. Allocating more budget to lower or higher percentages could ease the exploration of more complex parameter spaces.   
 
 Sample percentage:30%   
 ```
@@ -143,11 +154,20 @@ Optimizing Random Forest: 33 models; budget: 33
 
 ---
 
-To conclude, this was not an exhaustive search of how subsampling can be used to search optimal points in teh hyperparameter space. The code below has some implementations that can be used to explore different budget dividing strategies; different amounts of noise which model the variance associated with lower samples; exploit vs explore trade-off; ...    
-One thought that seems promissing is the exploration of higher dimensional spaces at lower samples seems at least more effective than relying on very expensive model full dataset training. For models with higher complexity this should be evident.   
+To conclude, this was not an exhaustive search of how subsampling can be used to search optimal points in the hyperparameter space.   
+The code below can be changed to:   
+1. Explore different budget dividing strategies; 
+2. Explore different amounts of noise in each of the sample percentages; 
+3. Investigate how to leverage the exploit vs explore trade-off; 
+4. Explore some relation between the observed points and the number of points to pass across samples;
+5. Explore how different these points should be;   
+...    
 
+The exploration of higher dimensional spaces at lower samples seems at least more effective than relying on very expensive model full dataset training. For models with higher complexity this should be evident.   
 
 ---
+---
+
 #### Code to replicate the figures above
 
 ```python
@@ -171,10 +191,11 @@ cNorm  = colors.Normalize(vmin=-0.9, vmax=-0.25)
 scalarMap = cm.ScalarMappable(norm=cNorm, cmap=copper)
 ```
 
-Utilities to compute time allocation
+Utilities to estimate allocation of compute time, complexities, ...
 
 ```python
-def cost_per_model(pct, algo='svm'): 
+def cost_per_model(pct, algo='rf'): 
+    '''returns the ratio of the computational time needed at a given % compared to the full dataset (100%)'''
     x = [i for i in range(1,101, 1)] 
  
     if algo == 'rf': 
@@ -187,6 +208,7 @@ def cost_per_model(pct, algo='svm'):
 
 
 def budget_division(budget, how='equal', steps=3, lower=0.4):
+    '''returns of the budget should be divided in the different sample steps'''
     
     def normalizing_factor(lst, budget):
         '''sum(lst).X = budget'''
@@ -206,11 +228,11 @@ def budget_division(budget, how='equal', steps=3, lower=0.4):
         
 
 def models_at_sample_size(budget, sample_size, algo):
+    '''given a budget and a sample size, returns the number of models that can be trained'''
     return int(budget*cost_per_model(sample_size, algo))
 
 
-def size(i, lower=0.4, steps=3):
-    #i += 1
+def size(i, lower=0.4, steps=3): 
     return lower + i * (1 - lower)/(steps - 1)
 ```
 
@@ -227,7 +249,7 @@ def get_data():
     return data, targets
 ```
 
-Function to optimize: random forest classifier being score with negative log loss.
+Function to optimize.
 
 ```python
 def rfc_cv(n_estimators, min_samples_split, max_features, data, targets): 
@@ -244,14 +266,15 @@ def rfc_cv(n_estimators, min_samples_split, max_features, data, targets):
 ```
 
 ```python
-# points to probe in next level. 
-#Something dynamic like sqrt(observations) could do the job but needs additional control mechanisms.
+# Points to probe in next level. 
+# Something dynamic like sqrt(observations) could do the job but needs additional control mechanisms.
 n_points = 5
 
 from sklearn.gaussian_process.kernels import (RBF, Matern, RationalQuadratic,
                                               ExpSineSquared, DotProduct,
                                               ConstantKernel)
 def points_to_probe(optimizer):
+    '''Generates viz and returns points to probe'''
     x0_obs = np.array([[res["params"]["max_features"]] for res in optimizer.res]) 
     x1_obs = np.array([[res["params"]["min_samples_split"]] for res in optimizer.res])
     x2_obs = np.array([[res["params"]["n_estimators"]] for res in optimizer.res]) 
@@ -287,10 +310,9 @@ def optimize_rfc(data, targets, level, cov_function_prior, n_iter=0, bounds=None
     cov_function_prior: definition of cov. function by the gaussian process regression. It's going to be updated every step.
     n_iter: number of models to be computed at each sample size. Is constrained by the total budget.
     bounds: updated boundaries for hyper param. space.
-    to_probe: promissing points found in smaller sample sizes.
-    
-    
+    to_probe: promissing points found in smaller sample sizes.    
     """
+    
     def rfc_crossval(n_estimators, min_samples_split, max_features): 
         return rfc_cv(
             n_estimators=int(n_estimators),
@@ -338,23 +360,24 @@ def optimize_rfc(data, targets, level, cov_function_prior, n_iter=0, bounds=None
     return points_to_probe(optimizer), cov_function_posterior
 ```
 
-
+ 
 ```python
 data, targets = get_data()
 
-lower = 0.3
-steps = 3
+lower = 0.3 # smallest percentage to sample from dataset
+steps = 3 # 3 different percentages to experiment with (linear interpolated)
 budget = 100
 
-bounds = None
+bounds = None 
 to_probe = []
-cov_function_prior = Matern(nu=2.5) + WhiteKernel(noise_level=0.01)
+cov_function_prior = Matern(nu=2.5)
 
 plt.figure()
 for level, b in enumerate(budget_division(budget, how='equal', steps=steps, lower=lower)):
     sample_size = size(level, lower, steps) 
     n_iter = models_at_sample_size(b, sample_size, 'rf')
     
+    # sampling
     rows = int(len(data) * sample_size)
     idx = np.random.choice(len(data), rows, replace=False)
     sampled_X = data[idx,:]
