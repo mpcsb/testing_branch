@@ -57,12 +57,12 @@ figure.highlight {
 }
 
 .highlight .hll {
-  background-color: $base06;
+  background-color: #ede8e8;//$base06;
 }
 .highlight {
   .c {
     /* Comment */
-    color: $base04;
+    color: #808059; //$base04;
   }
   .err {
     /* Error */
