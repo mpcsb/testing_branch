@@ -5,7 +5,7 @@ title: "subsampling_opt_src"
 subscribe: true
 --- 
 
-```python
+```
 from sklearn.datasets import make_classification
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier as RFC 
@@ -28,7 +28,7 @@ scalarMap = cm.ScalarMappable(norm=cNorm, cmap=copper)
 
 Utilities to estimate allocation of compute time, complexities, ...
 
-```python
+```
 def cost_per_model(pct, algo='rf'): 
     '''returns the ratio of the computational time needed at a given % compared to the full dataset (100%)'''
     x = [i for i in range(1,101, 1)] 
@@ -71,7 +71,7 @@ def size(i, lower=0.4, steps=3):
     return lower + i * (1 - lower)/(steps - 1)
 ```
 
-```python
+```
 def get_data():
     """Synthetic binary classification dataset."""
     data, targets = make_classification(
@@ -86,7 +86,7 @@ def get_data():
 
 Function to optimize.
 
-```python
+```
 def rfc_cv(n_estimators, min_samples_split, max_features, data, targets): 
     estimator = RFC(
         n_estimators=n_estimators,
@@ -100,7 +100,7 @@ def rfc_cv(n_estimators, min_samples_split, max_features, data, targets):
     return cval.mean()
 ```
 
-```python
+```
 # Points to probe in next level. 
 # Something dynamic like sqrt(observations) could do the job but needs additional control mechanisms.
 n_points = 5
@@ -196,7 +196,7 @@ def optimize_rfc(data, targets, level, cov_function_prior, n_iter=0, bounds=None
 ```
 
  
-```python
+```
 data, targets = get_data()
 
 lower = 0.3 # smallest percentage to sample from dataset
