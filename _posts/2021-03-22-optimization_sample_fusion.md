@@ -167,5 +167,5 @@ The exploration of higher dimensional spaces at lower samples seems at least mor
 
 ---
 
-[Code](www.testingbranch.com/bayes_opt_subsampled)
+[Code](https://www.testingbranch.com/bayes_opt_subsampled/)
 
