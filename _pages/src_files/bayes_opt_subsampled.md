@@ -5,14 +5,9 @@ title: "subsampling_opt_src"
 subscribe: true
 --- 
 
+## Fusing bayesian optimization explorations at different sample sizes
+
 ´´´python
-    #!/usr/bin/env python
-    # coding: utf-8
-
-    # # Fusing bayesian optimization explorations at different sample sizes
-
-    # In[22]:
-
 
     from sklearn.datasets import make_classification
     from sklearn.model_selection import cross_val_score
