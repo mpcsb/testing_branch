@@ -10,9 +10,9 @@ subscribe: true
 comments: true
 --- 
 
-This is the first of two posts about finding optimal parameters for machine learning models, and is motivated by [Hyper-Parameter Optimization: A Review of Algorithms and Applications](https://arxiv.org/abs/2003.05689). Subsampling is commented on a later section, as a strategy to reduce the training time; and doing so, reduces the search time for necessary to find optimal values. It's stated that subsampling is risky in terms of the potential to introduce more noise and uncertainty.  
-On this first post I'm going to explore subsampling and how much can be learned about the parameter space from it. Try to find evidence that the parameters tend to converge to the some value as data to train the model increases, and if it seems to increase at the same rate for all parameters; observe the effect in combinations of parameters; and to see if the overall patterns generalizes in the same way to different methods.  
-On the second post I'll explore subsampling to explore the parameter space in an efficient way.
+This is the first of two posts about finding optimal parameters for machine learning models, and is motivated by [Hyper-Parameter Optimization: A Review of Algorithms and Applications](https://arxiv.org/abs/2003.05689). Subsampling is commented on a later section, as a strategy to reduce the training time; and doing so, reduces the search time for necessary to find optimal values. It's stated that subsampling is risky in terms of the potential to introduce more noise and uncertainty.   
+On this first post I'm going to explore subsampling and how much can be learned about the parameter space from it. Try to find support from observations that the parameters tend to converge to the some value as training data increases, and if it seems to increase at the same rate for all parameters; observe the effect in combinations of parameters; and to see if the overall patterns generalizes in the same way to different methods.  
+On the [second post](https://www.testingbranch.com/optimization_sample_fusion/) I'll use subsampling to explore the parameter space, using whatever computational budget there is, efficiently.
 
 ___
   
