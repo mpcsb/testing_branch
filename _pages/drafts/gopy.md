@@ -1,6 +1,6 @@
 ---
 layout: single
-permalink: /drafts/barnes-hut/
+permalink: /drafts/GoPy/
 title: "GoPy"
 subscribe: true
 --- 
