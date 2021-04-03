@@ -145,6 +145,24 @@ For the the shared objects(.so), there is currently one extra step before intera
 
 After it, you're free to import vptree, which is essentially Go code.
 
+
+        Python 3.7.6 (default, Jan  8 2020, 19:59:22) 
+        [GCC 7.3.0] :: Anaconda, Inc. on linux
+        Type "help", "copyright", "credits" or "license" for more information.
+        >>> import vptree
+        >>> vptree.Example_accessiblePublicTransport()
+        Stations within 750 m of 51.501476N 0.140634W.
+        St. James's Park: 0.545 km
+        Green Park: 0.600 km
+        Victoria: 0.621 km
+
+        5 closest stations to 51.501476N 0.140634W.
+        St. James's Park: 0.545 km
+        Green Park: 0.600 km
+        Victoria: 0.621 km
+        Hyde Park Corner: 0.846 km
+        Picadilly Circus: 1.027 km
+        
 --- 
 
 So, Gopy is not perfect, but it's given me the least amount of trouble.
