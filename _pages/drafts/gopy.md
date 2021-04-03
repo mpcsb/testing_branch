@@ -16,7 +16,7 @@ The first case, to illustrate the process and expose some of the pitfalls of Gop
 First step: have Go code that you want to use in your python pipeline. This bit is taken from gonum's implementation and we're running one [example](https://github.com/gonum/gonum/blob/master/spatial/vptree/vptree_user_type_example_test.go) with minor changes to make it interactive over python's console.  
 
 ´´´
-    package vptree_test
+    package vptree
 
     import (
       "fmt"
@@ -127,12 +127,13 @@ First step: have Go code that you want to use in your python pipeline. This bit 
     }   
    
 ´´´
+
 This is a particularly good example of code to take. The definition of the distance is easily adjusted to reflect similarity in words, geometric spaces or whatever rule that makes sense to classify as similar.  
 
 Gopy uses pybindgen to create all necessary bindings and Go to create CPython. 
 
 ´´´
-gopy build -output=some/folder -vm=python3 path/to/go_pkg
+      gopy build -output=some/folder -vm=python3 path/to/go_pkg
 ´´´
 
 The following objects are created:
@@ -140,7 +141,7 @@ The following objects are created:
 For the the shared objects(.so), there is currently one extra step before interacting with the bindings, which is to adjust the LD_LIBRARY_PATH (and adding this to the profile files to making it permanent).
 
 ´´´
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD 
+      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD 
 ´´´
 
 After it, you're free to import vptree, which is essentially Go code.
