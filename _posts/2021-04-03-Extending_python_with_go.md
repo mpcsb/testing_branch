@@ -172,4 +172,4 @@ After it, you're free to import vptree, which is essentially Go code.
         
 --- 
 
-So, Gopy is not perfect, but it's given me the least amount of trouble.
+Simple enough.
