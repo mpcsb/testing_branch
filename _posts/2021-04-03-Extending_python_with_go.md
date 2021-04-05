@@ -1,6 +1,6 @@
 ---
 title:  "Extending python with Go"
-excerpt: "Exploring GoPy to extend python code"
+excerpt: "A simple example of how GoPy can be used to extend python with Go native code"
 header:
   overlay_image: /assets/images/gopy/header.jpg 
 tags:
@@ -14,14 +14,12 @@ comments: true
 This post is about extending python code with Go.  
 Python's ecosystem typically contains a great deal of what is needed, but for the cases when it doesn't or when some bespoke development is justified, Go might be worth looking into. For one, the language is simple and the compiler forces whatever code you generate to maintain some readibility.   
 After ad-hoc calls of Go code, structured calls of Go code, trying alternatives like [this](https://www.ardanlabs.com/blog/2020/07/extending-python-with-go.html) or [this](https://medium.com/@andreastagi/extending-python-with-go-part-1-6d0c8bb7dd56), it seems like it can be simpler or just a bit more automated.   
-[GoPy](https://github.com/go-python/gopy) generates (and compiles) a CPython extension module from a go package. It is well maintained and has plenty of examples to learn from.  
-
+Gopy generates (and compiles) a CPython extension module from a go package. It's well maintained for linux environments and has plenty of examples to learn from. Installing Go and Gopy is straighforward to install and instructions are provided in [Gopy's](https://github.com/go-python/gopy) repository.  
 ---
 
-The first case, to illustrate the process and expose some of the pitfalls of Gopy, is going to be the implementation of a [vantage-point tree](https://en.wikipedia.org/wiki/Vantage-point_tree).  
+To illustrate the process and expose the practical pitfalls of Gopy, let's start with an implementation of a vantage-point tree from the [gonum project](https://github.com/gonum/gonum/blob/master/spatial/vptree/vptree.go).   
 
-First step: have Go code that you want to use in your python pipeline. This bit is taken from gonum's implementation and we're running one [example](https://github.com/gonum/gonum/blob/master/spatial/vptree/vptree_user_type_example_test.go) with minor changes to make it interactive over python's console.  
-
+First step: have Go code that you want to use in your python pipeline. This bit is an example from gonum that should be simple to follow: essentially from a collection of places and given a specific address, determine which are whithin a certain distance and also to display the top 5 closest distances.   
 
     package vptree
 
@@ -67,20 +65,6 @@ First step: have Go code that you want to use in your python pipeline. This bit 
         p := c.Comparable.(place)
         fmt.Printf("%s: %0.3f km\n", p.name, p.Distance(q))
       }
-
-      // Output:
-      //
-      // Stations within 750 m of 51.501476N 0.140634W.
-      // St. James's Park: 0.545 km
-      // Green Park: 0.600 km
-      // Victoria: 0.621 km
-      //
-      // 5 closest stations to 51.501476N 0.140634W.
-      // St. James's Park: 0.545 km
-      // Green Park: 0.600 km
-      // Victoria: 0.621 km
-      // Hyde Park Corner: 0.846 km
-      // Picadilly Circus: 1.027 km
     }
 
     // stations is a list of railways stations.
@@ -134,21 +118,18 @@ First step: have Go code that you want to use in your python pipeline. This bit 
     }   
 
 
-This is a particularly good example of code to take. The definition of the distance is easily adjusted to reflect similarity in words, geometric spaces or whatever rule that makes sense to classify as similar.  
-
-Gopy uses pybindgen to create all necessary bindings and Go to create CPython. 
-
+This is a particularly good example of code to take. The definition of the distance can easily be changed to reflect similarity in words, geometric spaces or whatever rule that makes sense to classify as similar.  
 
       gopy build -output=some/folder -vm=python3 path/to/go_pkg
       
-This creates the shared library and other objects needed for the binding.
+This creates the shared library and other objects needed for the binding. 
 
 For the the shared objects(.so), there is one extra step before interacting with the bindings, which is to add a new path to the LD_LIBRARY_PATH variable to tell the dynamic link loader where to search for the dynamic shared libraries. There is a long lasting [issue](https://github.com/go-python/gopy/issues/203), where all steps are descbribed.   
 If you're in the location of the generated folder add the current working directory to the environment variable, else adjust it accordingly.
 
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD 
 
-After it, you're free to import vptree and use it with little to no issues.   
+After it, you're free to import vptree and use it with little to no issues.    
 
 
         Python 3.7.6 (default, Jan  8 2020, 19:59:22) 
@@ -171,3 +152,4 @@ After it, you're free to import vptree and use it with little to no issues.
 --- 
 
 Simple enough.
+This was a very simple example, but it seems to generalize well to more complex Go code.   
