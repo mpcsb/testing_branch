@@ -124,10 +124,10 @@ This is a particularly good example of code to take. The definition of the dista
       
 This creates the shared library and other objects needed for the binding. 
 
-For the the shared objects(.so), there is one extra step before interacting with the bindings, which is to add a new path to the LD_LIBRARY_PATH variable to tell the dynamic link loader where to search for the dynamic shared libraries. There is a long lasting [issue](https://github.com/go-python/gopy/issues/203), where all steps are descbribed.   
-If you're in the location of the generated folder add the current working directory to the environment variable, else adjust it accordingly.
+For the the shared objects(.so), there is one extra step before interacting with the bindings, which is to add a new path to the LD_LIBRARY_PATH variable to tell the dynamic link loader where to search for the dynamic shared libraries. There is a long lasting [issue](https://github.com/go-python/gopy/issues/203), where all steps are descbribed.  
+If you're in the location of the generated folder add the current working directory ($PWD) to the environment variable, else adjust it accordingly.
 
-      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD 
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD python3
 
 After it, you're free to import vptree and use it with little to no issues.    
 
