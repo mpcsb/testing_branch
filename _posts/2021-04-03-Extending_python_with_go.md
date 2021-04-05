@@ -140,17 +140,15 @@ Gopy uses pybindgen to create all necessary bindings and Go to create CPython.
 
 
       gopy build -output=some/folder -vm=python3 path/to/go_pkg
+      
+This creates the shared library and other objects needed for the binding.
 
-
-The following objects are created:
-
-For the the shared objects(.so), there is currently one extra step before interacting with the bindings, which is to adjust the LD_LIBRARY_PATH (and adding this to the profile files to making it permanent).
-
+For the the shared objects(.so), there is one extra step before interacting with the bindings, which is to add a new path to the LD_LIBRARY_PATH variable to tell the dynamic link loader where to search for the dynamic shared libraries. There is a long lasting [issue](https://github.com/go-python/gopy/issues/203), where all steps are descbribed.   
+If you're in the location of the generated folder add the current working directory to the environment variable, else adjust it accordingly.
 
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD 
 
-
-After it, you're free to import vptree, which is essentially Go code.
+After it, you're free to import vptree and use it with little to no issues.   
 
 
         Python 3.7.6 (default, Jan  8 2020, 19:59:22) 
@@ -169,7 +167,7 @@ After it, you're free to import vptree, which is essentially Go code.
         Victoria: 0.621 km
         Hyde Park Corner: 0.846 km
         Picadilly Circus: 1.027 km
-        
+
 --- 
 
 Simple enough.
