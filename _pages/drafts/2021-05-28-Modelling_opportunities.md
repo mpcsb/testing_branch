@@ -17,13 +17,30 @@ Because we understand what is being study so well, and we understand the impact 
 
 ---
 
-Let's set up a simulated dataset that resembles sales opportunities let's have the status of those opportunities depend on the price of these products and their relation to specific groups - in particular products and countries. In addition some random effects were also associated with information contained outside of the data.  
-This random effects will be increased to compare how important prior distributions are to effectively model our observations.  
+Let's set up a simulated dataset that resembles sales opportunities let's have the status of those opportunities depend on the price of these products and their relation to specific groups - in particular products and countries. In addition some random effects were also added to represent information contained outside of the data - competitor pricing, payment terms and other factors that might have an impact.  
+
+The basic idea is that we have a base price for each product, and based on the amount ordered, there will be quantity discounts. In addition, each country and each product might have promotions (relatively small magnitude effects) which don't interact with each other.  
+The major driving force behind a converted opportunity is the ratio between the discounted unit price and the base price.  
+This script generates the data.
+
+[insert pic with target distribution]
 
 ---
 
-modelling
+Let's use a linear model to study converted opportunities; let's use pymc3 to implement the bayesian form of a logistic regression.  
+Our model will have a linear terms for products and countries and it will use the logit as a link function to generate probabilities. These probabilities are used in a Binomial distribution to generate the posterior distribution.  
+Because we know that the unit price is the most important factor here, let's have a prior distribution that is free to explore the parameter space more readily.  
+All attributes are marginalized - we have essentially one model per combination of product and country, with shared intercepts. This is more performant and in the end accurate, because we can still use NUTS. Using gibbs sampler to sample from discrete variables is possible, but is not fast and it can result in completely inaccurate posteriors.  
+
+y = intercept + intercept_prod + alpha_prod * price + intercept_country + alpha_country * price  
+prob = logit^-1(y)  
+observations ~ Binomial(p=prob)  
+
+[traceplot]
+
+For simple models such as this, even weaker priors would probably be informative enough. Adding terms for other attributes, like industry or period, will make it more complex, and harder to sample. Also, in cases where noise is significant and our observations are not providing a clear signal for the model to pick up, encoding knowledge in priors helps the sampler significantly.  
 
 ---
 
-linear models extrapolate better
+Linear models extrapolate better, bt of course, the extrapolations follow a linear relation. This is not realistic of course - we can imagine that there are strong non-linear relations if unit price get close to nothing, and also when they get several times higher than the base price. That said, they're still helpful within the vicinities of the reasonable values.  
+
