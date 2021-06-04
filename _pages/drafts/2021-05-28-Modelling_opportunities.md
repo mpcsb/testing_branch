@@ -20,7 +20,7 @@ Because we understand what is being study so well, and we understand the impact 
 Let's set up a simulated dataset that resembles sales opportunities let's have the status of those opportunities depend on the price of these products and their relation to specific groups - in particular products and countries. In addition some random effects were also added to represent information contained outside of the data - competitor pricing, payment terms and other factors that might have an impact.  
 
 The basic idea is that we have a base price for each product, and based on the amount ordered, there will be quantity discounts. In addition, each country and each product might have promotions (relatively small magnitude effects) which don't interact with each other.  
-The major driving force behind a converted opportunity is the ratio between the discounted unit price and the base price.  
+The ratio between the discounted unit price and the base price is the major force in the conversion mechanism in our simulated data.  
 This script generates the data.
 
 [insert pic with target distribution]
