@@ -1,9 +1,17 @@
 ---
-layout: single
+title: Bayesian based simulations  
+excerpt: "Bayesian decision making applied to sales opportunities"
 permalink: /drafts/bayesian_simulation/
-title: "Bayesian based simulations"
+header:
+  overlay_image: /assets/images/outliers_ts/header.jpg 
+tags:
+    -  bayesian modelling
+share: true
 subscribe: true
+comments: true
 --- 
+
+
 
 Let's cover some of the strong points when using bayesian models to make predictions and simulate scenarios in a structured manner.  
 The ability that linear models provide to model noisy problems is one of the features I like. Using bayesian priors to inject domain knowledge in a model proves to be instrumental when observations alone may not be sufficient to determine driving factors in what we want to study.  
@@ -23,7 +31,19 @@ The basic idea is that we have a base price for each product, and based on the a
 The ratio between the discounted unit price and the base price is the major force in the conversion mechanism in our simulated data.  
 This script generates the data.
 
-[insert pic with target distribution]
+{% capture fig_img %}
+![Foo]({{ "/assets/images/bayesian_simulation/country_conversion.png" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
+
+{% capture fig_img %}
+![Foo]({{ "/assets/images/bayesian_simulation/product_conversion.png" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
 
 ---
 
@@ -36,11 +56,37 @@ y = intercept + intercept_prod + alpha_prod * price + intercept_country + alpha_
 prob = logit^-1(y)  
 observations ~ Binomial(p=prob)  
 
-[traceplot]
+{% capture fig_img %}
+![Foo]({{ "/assets/images/bayesian_simulation/traceplot.png" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
 
 For simple models such as this, even weaker priors would probably be informative enough. Adding terms for other attributes, like industry or period, will make it more complex, and harder to sample. Also, in cases where noise is significant and our observations are not providing a clear signal for the model to pick up, encoding knowledge in priors helps the sampler significantly.  
 
+{% capture fig_img %}
+![Foo]({{ "/assets/images/bayesian_simulation/posterior_predictive.png" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
+
+{% capture fig_img %}
+![Foo]({{ "/assets/images/bayesian_simulation/test_posterior.png" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
 ---
 
-Linear models extrapolate better, bt of course, the extrapolations follow a linear relation. This is not realistic of course - we can imagine that there are strong non-linear relations if unit price get close to nothing, and also when they get several times higher than the base price. That said, they're still helpful within the vicinities of the reasonable values.  
+Linear models extrapolate better, but of course, the extrapolations follow a linear relation. This is not realistic of course - we can imagine that there are strong non-linear relations if unit price get close to nothing, and also when they get several times higher than the base price. That said, they're still helpful within the vicinities of the reasonable values.   
+
+
+{% capture fig_img %}
+![Foo]({{ "/assets/images/bayesian_simulation/simulation.png" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
 
