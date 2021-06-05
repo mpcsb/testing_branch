@@ -3,7 +3,7 @@ title: Bayesian based simulations
 excerpt: "Bayesian decision making applied to sales opportunities"
 permalink: /drafts/bayesian_simulation/
 header:
-  overlay_image: /assets/images/outliers_ts/header.jpg 
+  overlay_image: /assets/images/bayesian_simulation/header.jpg 
 tags:
     -  bayesian modelling
 share: true
@@ -112,13 +112,33 @@ For simple models such as this, even weaker priors would probably be informative
 <figure>
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
+
+
+{% capture fig_img %}
+![Foo]({{ "/assets/images/bayesian_simulation/simul_prob_var_circle1.png" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
+
+
 ---
 
 Linear models extrapolate better, but of course, the extrapolations follow a linear relation. This is not realistic of course - we can imagine that there are strong non-linear relations if unit price get close to nothing, and also when they get several times higher than the base price. That said, they're still helpful within the vicinities of the reasonable values.   
 
 
 {% capture fig_img %}
-![Foo]({{ "/assets/images/bayesian_simulation/simulation.png" | relative_url }})
+![Foo]({{ "/assets/images/bayesian_simulation/discount.png" | relative_url }})
+{% endcapture %}
+<figure>
+  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
+</figure>
+
+
+The same exercise can be executed to assess how to raise prices for specific products.
+
+{% capture fig_img %}
+![Foo]({{ "/assets/images/bayesian_simulation/mark-up.png" | relative_url }})
 {% endcapture %}
 <figure>
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
