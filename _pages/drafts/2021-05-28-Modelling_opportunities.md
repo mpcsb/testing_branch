@@ -29,7 +29,6 @@ Let's set up a simulated dataset that resembles sales opportunities let's have t
 
 The basic idea is that we have a base price for each product, and based on the amount ordered, there will be quantity discounts. In addition, each country and each product might have promotions (relatively small magnitude effects) which don't interact with each other.  
 The ratio between the discounted unit price and the base price is the major force in the conversion mechanism in our simulated data.  
-This script generates the data.
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/country_conversion.png" | relative_url }})
@@ -55,6 +54,41 @@ All attributes are marginalized - we have essentially one model per combination 
 y = intercept + intercept_prod + alpha_prod * price + intercept_country + alpha_country * price  
 prob = logit^-1(y)  
 observations ~ Binomial(p=prob)  
+
+N=len(train_status)
+dim1 = len(set(product_id))
+dim2 = len(set(country))  
+
+      with pm.Model() as shared_data_model: 
+
+          intercept = pm.Normal('intercept', mu=0, sd=1)  
+
+          alpha_product = pm.Normal('alpha_product', mu=0, sd=1, shape=dim1)
+          alpha_country = pm.Normal('alpha_country', mu=0, sd=1, shape=dim2) 
+
+          sigma_beta = 3
+          beta_product = pm.Normal('beta_product', mu=0, sd=sigma_beta, shape=dim1)
+          beta_country = pm.Normal('beta_country', mu=0, sd=sigma_beta, shape=dim2)  
+
+          train_cty = pm.Data("train_cty", train_country)
+          train_p = pm.Data("train_p", train_product_id)
+          train_offers = pm.Data("train_offers", train_normalized_offers)
+          train_p_cty = pm.Data("train_p_cty", train_p_cty)
+
+          p = invlogit(intercept 
+                       + alpha_product[train_p] 
+                       + alpha_country[train_cty]    
+                       + beta_product[train_p] * train_offers 
+                       + beta_country[train_cty] * train_offers   
+                      ) 
+
+          y = pm.Bernoulli('y', p=p, observed=train_status) 
+
+          trace = pm.sample(init='advi+adapt_diag', n_init=100000,
+                                tune=1000, draws=1500, chains=3, cores=8,
+                                target_accept=0.90, max_treedepth=10)
+      az.plot_trace(trace, compact=True); plt.show()
+
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/traceplot.png" | relative_url }})
