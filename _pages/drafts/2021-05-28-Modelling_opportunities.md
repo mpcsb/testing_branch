@@ -33,21 +33,14 @@ Additionally, random effects were also added, and here we want to represent fact
 The basic mechanics of the [code](https://www.testingbranch.com/src_model_simulation/).  
 The ratio between the discounted unit price and the base price is the major force in the conversion mechanism in our simulated data.  
  
-Some plots that show how the target varies with the 5 simulated products and the 3 simulated prices. There is a clear division on the zscore -- and the model should pick it up easily.   
+Some plots that show how the target varies with the 5 simulated products and the 3 simulated prices. There is a clear division on the ratio of the offered unit price and the base price.     
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/country_conversion.png" | relative_url }})
 {% endcapture %}
 <figure>
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
-</figure>
-
-{% capture fig_img %}
-![Foo]({{ "/assets/images/bayesian_simulation/product_conversion.png" | relative_url }})
-{% endcapture %}
-<figure>
-  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
-</figure>
+</figure> 
 
 ---
 
@@ -124,7 +117,8 @@ We can observe the highest posterior density regions and how well it models the 
 </figure>
 
 
-Below we can observe the predictions of an hold-out set and the uncertainty (the standard deviation of the posterior predictions) of each prediction. This is will be helpfull to understand how much trust can be deposited in each prediction.   
+Below we can observe the predictions of an hold-out set and the uncertainty (the standard deviation of the posterior predictions) of each prediction. This is will be helpfull to understand how much trust can be deposited in each prediction.  
+Notice that the standard deviation for a Binomial distribution is bounded at 0.5. Anything greater would make probability pend towards the other outcome.
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/simul_prob_var_circle1.png" | relative_url }})
@@ -141,8 +135,9 @@ This is not realistic of course - we can imagine that there are strong non-linea
 
 
 If we wanted to answer the question of what discount to apply to an offer to have it accepted, in this models, it's simply a matter of sampling from the posterior with a different price value.  
-In the plot below we can see a range of discounts that would turn previously declined offers into conversions. Quite interesting! Ideally a sales rep would like to see large spikes, without granting large discounts.  
+In the plot below we can see a range of discounts that would turn previously declined offers into conversions. Quite interesting! Ideally a sales rep would like to see large spikes in won opportunities without giving large discounts.  
 
+Below we can see the evolution of conversions with discounts and the color represent the mean uncertainty of all previously declined offers. The smaller prices will affect the outcome of the logit model. The shape of the posterior on the other hand fixed, so we can also interpret some of the marginalized distributions for countries of for products.  
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/discount.png" | relative_url }})
@@ -153,7 +148,7 @@ In the plot below we can see a range of discounts that would turn previously dec
 
 
 The same exercise can be executed to assess ideal increases to unit prices.  
-Here we can see the amount of offers lost as we keep raising the prices -- sales reps could use this to increase prices just below what would lose an offer, or to maximize sales (if you're able to sell for 3x the base price, some lost offers could be acceptable). This is business dependent.   
+Here we can see the amount of offers lost as we keep raising the prices -- sales reps could use this to increase prices just below what would lose an offer, or to maximize sales (if you're able to sell for 3x the base price, less business could be acceptable).    
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/mark-up.png" | relative_url }})
@@ -161,8 +156,6 @@ Here we can see the amount of offers lost as we keep raising the prices -- sales
 <figure>
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
-
-A final remark: all of these predictions and simulations should be considered based on the uncertainty of the model; however this also assumes the we were able to build something that models the behavior well enough.  
 
 
 [Code](https://www.testingbranch.com/src_model_simulation/)
