@@ -65,10 +65,10 @@ observations ~ Binomial(p=prob)
 
           intercept = pm.Normal('intercept', mu=0, sd=1)  
 
-          alpha_product = pm.Normal('alpha_product', mu=0, sd=10, shape=dim1)
-          alpha_country = pm.Normal('alpha_country', mu=0, sd=10, shape=dim2) 
+          alpha_product = pm.Normal('alpha_product', mu=0, sd=1, shape=dim1)
+          alpha_country = pm.Normal('alpha_country', mu=0, sd=1, shape=dim2) 
 
-          sigma_beta = 3
+          sigma_beta = 10
           beta_product = pm.Normal('beta_product', mu=0, sd=sigma_beta, shape=dim1)
           beta_country = pm.Normal('beta_country', mu=0, sd=sigma_beta, shape=dim2)  
 
