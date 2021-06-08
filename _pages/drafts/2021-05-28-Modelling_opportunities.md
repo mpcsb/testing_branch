@@ -10,10 +10,9 @@ comments: true
 
 --- 
 
-Once we have a statistical model, we can use it for more than predicting outcomes of what is being modelled.  
 For this post, we're going to build a very simple model and extract insights from it in order to simulate specific scenarios.  
-Linear models are able to handle noisy observations with some abiity and are in the end more resilient -- as oppposed to high variance models, they don't get lost in the weeds.  
-Using Bayesian models, we have additional strengths in our model: the ability to inject domain knowledge in a model -> instrumental when observations alone may not be sufficient to determine the driving factors in our outcomes; and we can quantitfy the uncertainty associated with our predictions in a principled way. It comes directly from the posterior distributions, without any gimnastics.    
+Linear models are able to handle noisy observations with some abiity and are in the end more resilient -- as oppposed to high variance models, they don't get lost in the weeds, focusing on irrelevant details.   
+Using Bayesian models, we have additional strengths in our model: the ability to inject domain knowledge in a model -> instrumental when observations alone may not be sufficient to determine the driving factors in our outcomes; and we can quantitfy the uncertainty associated with our predictions in a principled way. It comes directly from the posterior distributions, straight from the working principle of the algorithm.    
 If we want to estimate the outcome of simulated scenarios, this is very valuable.  
 
 ---
@@ -31,12 +30,11 @@ There will be a conversion status (won/lost -> 1/0) and it will depend primarily
 Additionally, random effects were also added, and here we want to represent factors that have a direct impact on the conversion of the opportunity, essentially model market competitiveness.  
 
 The basic mechanics of the [code](https://www.testingbranch.com/src_model_simulation/).  
-The ratio between the discounted unit price and the base price is the major force in the conversion mechanism in our simulated data.  
  
-Some plots that show how the target varies with the 5 simulated products and the 3 simulated prices. There is a clear division on the ratio of the offered unit price and the base price.     
+Some plots that show how the target varies with the 5 simulated products and the 3 simulated countries. There is a clear division on the ratio of the offered unit price and the base price.  
 
 {% capture fig_img %}
-![Foo]({{ "/assets/images/bayesian_simulation/country_conversion.png" | relative_url }})
+![Foo]({{ "/assets/images/bayesian_simulation/country_product.png" | relative_url }})
 {% endcapture %}
 <figure>
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
@@ -51,7 +49,7 @@ The pricing figures are zscored, essentially a transformation that is close to z
 Our model will have a linear terms for products and for countries in addition to a common intercept; it will use a logit as a link function to generate probabilities. These probabilities are used to generate a Binomial distribution to model our observations.  
 Because we know that the unit price is the most important factor here, let's set a prior distribution for a multiplicative parameter, which is free to reach larger values easily.  
 To efficiently explore the parameter space of the model, we want to have a performant sampler. Pymc3 implements NUTS, which efficient as it is, is not able to explore discrete parameters. Other samplers are able to deal with discrete values, but not efficiently as potentially inaccurate.  
-By marginalizing over the discrete values in the model, we can still use NUTS in this model formulation and without loss of information. (See more from M. Bettencourt)[https://twitter.com/betanalpha/status/1374054343872221192?s=20]   
+By marginalizing over the discrete values in the model, we can still use NUTS in this model formulation and without loss of information. 
 
 The overall formula for the model:  
 y = intercept + intercept_prod + alpha_prod * price + intercept_country + alpha_country * price  
@@ -127,6 +125,8 @@ Notice that the standard deviation for a Binomial distribution is bounded at 0.5
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
+In addition to the posterior deviation in our predictions, we can also assess uncertainty in these models by investigating the individuals distributions that composed the model.  
+Listing the standard deviations of the posteriors is an easy way to quantify that some predictions, because they're modelled by wider curves, will have inherently more uncertainty associated.  
 
 ---
 
