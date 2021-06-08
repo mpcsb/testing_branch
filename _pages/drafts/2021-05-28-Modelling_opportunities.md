@@ -11,14 +11,14 @@ comments: true
 --- 
 
 For this post, we're going to build a very simple model and extract insights from it in order to simulate specific scenarios.  
-Linear models are able to handle noisy observations with some abiity and are in the end more resilient -- as oppposed to high variance models, they don't get lost in the weeds, focusing on irrelevant details.   
+Linear models are able to handle noisy observations with some abiity and are in the end more resilient — as oppposed to high variance models, they don't get lost in the weeds, focusing on irrelevant details.   
 Using Bayesian models, we have additional strengths in our model: the ability to inject domain knowledge in a model -> instrumental when observations alone may not be sufficient to determine the driving factors in our outcomes; and we can quantitfy the uncertainty associated with our predictions in a principled way. It comes directly from the posterior distributions, straight from the working principle of the algorithm.    
 If we want to estimate the outcome of simulated scenarios, this is very valuable.  
 
 ---
 
 One study that seems particularly suited for this, is the case of converted sales opportunities.  
-To give just enough context, typically sales reps log opportunities in the accounts they monitor, and they log information relevant for it. In particular, the unit price of the offer and status -- whether it was converted or not.     
+To give just enough context, typically sales reps log opportunities in the accounts they monitor, and they log information relevant for it. In particular, the unit price of the offer and status — whether it was converted or not.     
 Some attributes in these logs end up being very informative for the outcome of the opportunity. Much like with anything that we purchase, the price is *the* driving factor behind a conversion.  
 That said, the data does not contain all information needed to make deterministic claims about the opportunity; competitor pricing conditions or the credit limit for a specific account would of course have an impact, and in it's absence, the conversion target appears noisier.
 Because we understand what is being study so well, and we understand the impact of pricing, it's an ideal case to model.  
@@ -65,8 +65,8 @@ observations ~ Binomial(p=prob)
 
           intercept = pm.Normal('intercept', mu=0, sd=1)  
 
-          alpha_product = pm.Normal('alpha_product', mu=0, sd=1, shape=dim1)
-          alpha_country = pm.Normal('alpha_country', mu=0, sd=1, shape=dim2) 
+          alpha_product = pm.Normal('alpha_product', mu=0, sd=10, shape=dim1)
+          alpha_country = pm.Normal('alpha_country', mu=0, sd=10, shape=dim2) 
 
           sigma_beta = 3
           beta_product = pm.Normal('beta_product', mu=0, sd=sigma_beta, shape=dim1)
@@ -105,10 +105,10 @@ In cases where noise is significant and our observations are not providing a cle
 
 
 Sampling from the posterior, we can see the separation in the conversion of opportunities by the pricing is clear.  
-We can observe the highest posterior density regions and how well it models the data.  
+We can observe the highest posterior density regions and how well it separates te normalized price. Other transformations, like zscoring the price by product, presented cleaner regions, but since the performance of the model was identical,  having the price presented as it is was more convenient for the simulations — the focus of the post.  
 
 {% capture fig_img %}
-![Foo]({{ "/assets/images/bayesian_simulation/posterior_predictive.png" | relative_url }})
+![Foo]({{ "/assets/images/bayesian_simulation/train_posterior.png" | relative_url }})
 {% endcapture %}
 <figure>
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
@@ -131,7 +131,7 @@ Listing the standard deviations of the posteriors is an easy way to quantify tha
 ---
 
 Linear models extrapolate well, or at least better than some classes of models, but of course, the extrapolations assume a linear relation.  
-This is not realistic of course - we can imagine that there are strong non-linear relations if unit price get close to nothing, and also when they get several times higher than the base price. That said, they're more helpful nearer values that have been observed.  
+This is not realistic of course — we can imagine that there are strong non-linear relations if unit price get close to nothing, and also when they get several times higher than the base price. That said, they're more helpful nearer values that have been observed.  
 
 
 If we wanted to answer the question of what discount to apply to an offer to have it accepted, in this models, it's simply a matter of sampling from the posterior with a different price value.  
@@ -148,7 +148,7 @@ Below we can see the evolution of conversions with discounts and the color repre
 
 
 The same exercise can be executed to assess ideal increases to unit prices.  
-Here we can see the amount of offers lost as we keep raising the prices -- sales reps could use this to increase prices just below what would lose an offer, or to maximize sales (if you're able to sell for 3x the base price, less business could be acceptable).    
+Here we can see the amount of offers lost as we keep raising the prices — sales reps could use this to increase prices just below what would lose an offer, or to maximize sales (if you're able to sell for 3x the base price, less business could be acceptable).    
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/mark-up.png" | relative_url }})
