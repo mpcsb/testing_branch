@@ -117,10 +117,10 @@ author:
   links:
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
-      #url: mailto:miguelcbatista@gmail.com
+      url: mailto:miguelcbatista@gmail.com
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
-      # url: "https://twitter.com/mpcbatista"
+      url: "https://twitter.com/mpcbatista"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
       # url: "https://github.com/mpcsb"
