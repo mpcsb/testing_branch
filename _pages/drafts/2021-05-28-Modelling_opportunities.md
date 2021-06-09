@@ -11,8 +11,8 @@ comments: true
 --- 
 
 For this post, we're going to build a very simple model and extract insights from it in order to simulate specific scenarios.  
-Linear models are able to handle noisy observations with some abiity and are in the end more resilient — as oppposed to high variance models, they don't get lost in the weeds, focusing on irrelevant details.   
-Using Bayesian models, we have additional strengths in our model: the ability to inject domain knowledge in a model -> instrumental when observations alone may not be sufficient to determine the driving factors in our outcomes; and we can quantitfy the uncertainty associated with our predictions in a principled way. It comes directly from the posterior distributions, straight from the working principle of the algorithm.    
+Linear models are able to handle very noisy observations with some abiity and are in the end more resilient — as oppposed to high variance models, they don't get lost in the weeds, focusing on irrelevant details.   
+Using Bayesian regression models, we have additional strengths in our model: the ability to inject domain knowledge in a model -> instrumental when observations alone may not be sufficient to determine the driving factors in our outcomes; and we can quantitfy the uncertainty associated with our predictions in a principled way. It comes directly from the posterior distributions, straight from the working principle of the algorithm; one additional advantage is the fact that the end result of a bayesian model are probability distributions, and this means that we can communicate probabilities to domain experts instead of p-values, confidence intervals, ... and other statistical constructs which are more sophisticated concepts.  
 If we want to estimate the outcome of simulated scenarios, this is very valuable.  
 
 ---
@@ -31,7 +31,7 @@ Additionally, random effects were also added, and here we want to represent fact
 
 The basic mechanics of the [code](https://www.testingbranch.com/src_model_simulation/).  
  
-Some plots that show how the target varies with the 5 simulated products and the 3 simulated countries. There is a clear division on the ratio of the offered unit price and the base price.  
+Some plots that show how the target varies with the 5 simulated products and the 3 simulated countries. There is a division on the ratio of the offered unit price and the base price: increasing the simulation noise will make this division less clear and overall, create a harder problem.  
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/country_product.png" | relative_url }})
@@ -42,19 +42,21 @@ Some plots that show how the target varies with the 5 simulated products and the
 
 ---
 
-Let's then setup a simple model to study converted opportunities. This is not meant to ideally model the data, it's just something to generate simulations.  
-I'll use pymc3 to implement the bayesian form of a logistic regression. If some aspect behind the model definition escapes you, refer to their [examples and docs](https://docs.pymc.io/).   
-The pricing figures are zscored, essentially a transformation that is close to zero (naturally easy to assign prior distributions to).  
+Let's then setup a simple model to study converted opportunities. This is not meant to ideally model the data, it's just a basic object to generate simulations.  
 
-Our model will have a linear terms for products and for countries in addition to a common intercept; it will use a logit as a link function to generate probabilities. These probabilities are used to generate a Binomial distribution to model our observations.  
-Because we know that the unit price is the most important factor here, let's set a prior distribution for a multiplicative parameter, which is free to reach larger values easily.  
-To efficiently explore the parameter space of the model, we want to have a performant sampler. Pymc3 implements NUTS, which efficient as it is, is not able to explore discrete parameters. Other samplers are able to deal with discrete values, but not efficiently as potentially inaccurate.  
-By marginalizing over the discrete values in the model, we can still use NUTS in this model formulation and without loss of information. 
+I'll use pymc3 to implement the bayesian form of a logistic regression. If some aspect behind the model definition escapes you, refer to their [examples and docs](https://docs.pymc.io/).   
+The pricing figures are normalized by the base pricing of each product; essentially a transformation that scales the figures and makes them close to zero (naturally easy to assign prior distributions to).  
+
+Our model will have a linear terms for products and for countries in addition to a common intercept; it will use a logit as a link function to generate probabilities. These probabilities are used to generate a Binomial distribution that model our observations.  
+
+Because we know that the unit price is the most important factor here, let's set a prior distribution for a multiplicative parameter, which is free to reach larger values easily.    
+To efficiently explore the parameter space of the model, we want to have a performant sampler. Pymc3 implements NUTS, which efficient as it is, is not able to explore discrete parameter spaces. Other samplers are able to do so, but not efficiently and potentially giving inaccurate distributions.  
+By marginalizing over the discrete values in the model, we can still use NUTS in this model formulation without loss of information. 
 
 The overall formula for the model:  
-y = intercept + intercept_prod + alpha_prod * price + intercept_country + alpha_country * price  
-prob =  inverse_logit(y)  
-observations ~ Binomial(p=prob)  
+> y = intercept + intercept_prod + alpha_prod*price + intercept_country + alpha_country*price  
+> prob = inverse_logit(y)  
+> observations ~ Binomial(p=prob)  
 
       
       N=len(train_status)
@@ -91,7 +93,7 @@ observations ~ Binomial(p=prob)
                                 target_accept=0.90, max_treedepth=10)
       az.plot_trace(trace, compact=True); plt.show()
 
-This model is simple enough for this data, so there's no divergences or anything that raises any red flags. Let's proceed.  
+This model is simple enough for this data, so there's no divergences or anything that raises any red flags.  
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/traceplot.png" | relative_url }})
@@ -100,12 +102,13 @@ This model is simple enough for this data, so there's no divergences or anything
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
+Let's proceed.  
 For simple models such as this, even weaker priors would probably be informative enough. Adding terms for other attributes, like industry or some time component will make it more complex and harder to sample.  
 In cases where noise is significant and our observations are not providing a clear signal for the model to pick up, encoding knowledge in priors helps the sampler significantly.  
 
 
-Sampling from the posterior, we can see the separation in the conversion of opportunities by the pricing is clear.  
-We can observe the highest posterior density regions and how well it separates te normalized price. Other transformations, like zscoring the price by product, presented cleaner regions, but since the performance of the model was identical,  having the price presented as it is was more convenient for the simulations — the focus of the post.  
+Sampling from the posterior, we can see the separation in the conversion of opportunities by the pricing is clear.   
+We can observe the highest posterior density regions and how well it separates the normalized price. Other transformations, like zscoring the price by product, presented cleaner regions, but since the performance of the model was identical, having the price presented as it is, was more convenient for the simulations — the focus of the post.  
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/train_posterior.png" | relative_url }})
@@ -114,6 +117,7 @@ We can observe the highest posterior density regions and how well it separates t
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
+The key to take from the model, is that if probabilities are converted to outcomes, the predictive performance of the model is good.  
 
 Below we can observe the predictions of an hold-out set and the uncertainty (the standard deviation of the posterior predictions) of each prediction. This is will be helpfull to understand how much trust can be deposited in each prediction.  
 Notice that the standard deviation for a Binomial distribution is bounded at 0.5. Anything greater would make probability pend towards the other outcome.
@@ -125,19 +129,20 @@ Notice that the standard deviation for a Binomial distribution is bounded at 0.5
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-In addition to the posterior deviation in our predictions, we can also assess uncertainty in these models by investigating the individuals distributions that composed the model.  
-Listing the standard deviations of the posteriors is an easy way to quantify that some predictions, because they're modelled by wider curves, will have inherently more uncertainty associated.  
+In addition to the posterior spread in our predictions, we can also assess uncertainty in these models by investigating the other posterior distributions that composed the model.  
+Listing the standard deviations of the posteriors is an easy way to quantify why some predictions, because they're modelled by wider curves, will have inherently more uncertainty associated.  
 
 ---
 
-Linear models extrapolate well, or at least better than some classes of models, but of course, the extrapolations assume a linear relation.  
-This is not realistic of course — we can imagine that there are strong non-linear relations if unit price get close to nothing, and also when they get several times higher than the base price. That said, they're more helpful nearer values that have been observed.  
+Linear models extrapolate well, or at least better than some classes of models, but of course, these extrapolations assume a linear relation.  
+This is not realistic for all cases, of course — we can imagine that there are strong non-linear relations if unit price get close to zero, and also when they get several times higher than the base price.  
 
 
 If we wanted to answer the question of what discount to apply to an offer to have it accepted, in this models, it's simply a matter of sampling from the posterior with a different price value.  
-In the plot below we can see a range of discounts that would turn previously declined offers into conversions. Quite interesting! Ideally a sales rep would like to see large spikes in won opportunities without giving large discounts.  
+In the plot below we can see a range of discounts that would convert previously declined offers into conversions. Quite interesting! Ideally a sales rep would like to see large spikes in won opportunities without giving large discounts.  
 
-Below we can see the evolution of conversions with discounts and the color represent the mean uncertainty of all previously declined offers. The smaller prices will affect the outcome of the logit model. The shape of the posterior on the other hand fixed, so we can also interpret some of the marginalized distributions for countries of for products.  
+Below we can see the evolution of conversions with discounts and the color represents the mean of a measure of uncertainty (std dev of the posterior) of all previously declined offers.  
+The smaller prices will affect the outcome of the logit model, and therefore the probability (which as seen above, has a direct relation to the uncertainty). The shape of the posterior on the other hand is fixed. To put it in other words, some countries or products, because they have a lower signal-to-noise ratio, will always be more uncertain.    
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/discount.png" | relative_url }})
@@ -146,9 +151,11 @@ Below we can see the evolution of conversions with discounts and the color repre
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
+The key point that we can take from the simulations is that adding a 20% discount on top of the previous offer will gain all of the opportunities. More than that is essentially losing money.  
 
-The same exercise can be executed to assess ideal increases to unit prices.  
-Here we can see the amount of offers lost as we keep raising the prices — sales reps could use this to increase prices just below what would lose an offer, or to maximize sales (if you're able to sell for 3x the base price, less business could be acceptable).    
+
+The same exercise can be executed to assess ideal increases to unit prices and analyze the tradeoff between revenue and declined offers in a principled manner.  
+Here we can see the amount of offers lost as we keep raising the prices — sales reps could use this to increase prices just below what would lose an offer, or to maximize profit (if you're able to sell for 3x the base price, less business could be acceptable).    
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/mark-up.png" | relative_url }})
@@ -157,5 +164,12 @@ Here we can see the amount of offers lost as we keep raising the prices — sale
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
+The simulation shows that we could, based on the model, increase the price dramatically, until we lose all opportunities.  
+Both of these simulations seem to agree with our knowledge of the problem.
 
-[Code](https://www.testingbranch.com/src_model_simulation/)
+---
+
+This post hopefully helped illustrate how we can use models to assist in simulating scenarios.  
+More complex models will bring very interesting simulations, and optimizing these parameter landscapes will become a less trivial exercise.  
+
+[Check the code and adjust noise parameters to explore different scenarios](https://www.testingbranch.com/src_model_simulation/)
