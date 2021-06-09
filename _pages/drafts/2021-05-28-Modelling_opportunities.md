@@ -54,9 +54,9 @@ To efficiently explore the parameter space of the model, we want to have a perfo
 By marginalizing over the discrete values in the model, we can still use NUTS in this model formulation without loss of information. 
 
 The overall formula for the model:  
-> y = intercept + intercept_prod + alpha_prod*price + intercept_country + alpha_country*price  
-> prob = inverse_logit(y)  
-> observations ~ Binomial(p=prob)  
+y = intercept + intercept_prod + alpha_prod * price + intercept_country + alpha_country * price  
+prob = inverse_logit(y)  
+observations ~ Binomial(p=prob)  
 
       
       N=len(train_status)
