@@ -1,12 +1,3 @@
----
-layout: single
-permalink: /src_model_simulation/
-title: "src_model_simulation"
-subscribe: true
---- 
-
-
-```
 # -*- coding: utf-8 -*-
 """pricing.ipynb
 
@@ -305,5 +296,3 @@ plt.ylabel('Lost opportunities')
 plt.xlabel('Mark-up on offered unit price(%)')  
 
 plt.colorbar(sm)
-
-```
