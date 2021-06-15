@@ -11,7 +11,7 @@ comments: true
 
 For this post, we're going to build a very simple model and extract insights from it in order to simulate specific scenarios.  
 Linear models are able to handle very noisy observations with some abiity and are in the end more resilient — as oppposed to high variance models, they don't get lost in the weeds, focusing on irrelevant details.   
-Using Bayesian regression models, we have additional strengths in our model: the ability to inject domain knowledge in a model -> instrumental when observations alone may not be sufficient to determine the driving factors in our outcomes; and we can quantitfy the uncertainty associated with our predictions in a principled way. It comes directly from the posterior distributions, straight from the working principle of the algorithm; one additional advantage is the fact that the end result of a bayesian model are probability distributions, and this means that we can communicate probabilities to domain experts instead of p-values, confidence intervals, ... and other statistical constructs which are more sophisticated concepts.  
+Using Bayesian regression models, we have additional strengths in our model: the ability to inject domain knowledge in a model is fundamental when observations alone may not be sufficient to determine the driving factors in our outcomes; we can quantitfy the uncertainty associated with our predictions in a principled way. It comes directly from the posterior distributions, straight from the working principle of the algorithm; one additional advantage is the fact that the end result of a bayesian model are probability distributions, which means that we can communicate probabilities to domain experts instead of p-values, confidence intervals, ... or other sophisticated statistical constructs.  
 If we want to estimate the outcome of simulated scenarios, this is very valuable.  
 
 ---
@@ -28,7 +28,7 @@ Let's set up a small simulated dataset of 500 opportunities.
 There will be a conversion status (won/lost -> 1/0) and it will depend primarily on the unit price of the items being sold as well as specific attributes (the account country and the product being sold) -- this is represented with a random effect and can be interpreted as potential sales reps' discounts or product promotions.  
 Additionally, random effects were also added, and here we want to represent factors that have a direct impact on the conversion of the opportunity, essentially model market competitiveness.  
 
-A preview of the dataset below.  
+A preview of the dataset below. For the model, we'll ignore the amount ordered, informative as it may be, and focus only on the unit_price, country and product ID.    
 
 | id  | unit_price | p_id | amount     | country | status |
 |-----|------------|------|------------|---------|--------|
@@ -38,9 +38,9 @@ A preview of the dataset below.
 | 224 | 2.851734   | 1    | 207.205554 | c       | 1      |
 | 123 | 39.875412  | 4    | 7.842334   | b       | 0      |
 
-The basic mechanics of the [code that generates the data](https://www.testingbranch.com/src_model_simulation/).  
+Check the data generating [code](https://www.testingbranch.com/src_model_simulation/) for the specifics.  
  
-Some plots that show how the target varies with the 5 simulated products and the 3 simulated countries. There is a division on the ratio of the offered unit price and the base price: increasing the simulation noise will make this division less clear and overall, create a harder problem.  
+Two plots that show how the target varies with the 5 simulated products and the 3 simulated countries. There is a division on the ratio of the offered unit price and the base price, but it's not a perfect boundary: increasing the simulation noise will make this division less clear and overall, create a harder problem.  
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/country_product.png" | relative_url }})
