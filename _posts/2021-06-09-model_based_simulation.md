@@ -28,7 +28,17 @@ Let's set up a small simulated dataset of 500 opportunities.
 There will be a conversion status (won/lost -> 1/0) and it will depend primarily on the unit price of the items being sold as well as specific attributes (the account country and the product being sold) -- this is represented with a random effect and can be interpreted as potential sales reps' discounts or product promotions.  
 Additionally, random effects were also added, and here we want to represent factors that have a direct impact on the conversion of the opportunity, essentially model market competitiveness.  
 
-The basic mechanics of the [code](https://www.testingbranch.com/src_model_simulation/).  
+A preview of the dataset below.  
+
+| id  | unit_price | p_id | amount     | country | status |
+|-----|------------|------|------------|---------|--------|
+| 325 | 30.342365  | 4    | 62.734691  | a       | 1      |
+| 457 | 69.475791  | 5    | 20.922939  | c       | 0      |
+| 351 | 30.164137  | 4    | 73.612906  | b       | 1      |
+| 224 | 2.851734   | 1    | 207.205554 | c       | 1      |
+| 123 | 39.875412  | 4    | 7.842334   | b       | 0      |
+
+The basic mechanics of the [code that generates the data](https://www.testingbranch.com/src_model_simulation/).  
  
 Some plots that show how the target varies with the 5 simulated products and the 3 simulated countries. There is a division on the ratio of the offered unit price and the base price: increasing the simulation noise will make this division less clear and overall, create a harder problem.  
 
@@ -49,8 +59,6 @@ The pricing figures are normalized by the base pricing of each product; essentia
 Our model will have a linear terms for products and for countries in addition to a common intercept; it will use a logit as a link function to generate probabilities. These probabilities are used to generate a Binomial distribution that model our observations.  
 
 Because we know that the unit price is the most important factor here, let's set a prior distribution for a multiplicative parameter, which is free to reach larger values easily.    
-To efficiently explore the parameter space of the model, we want to have a performant sampler. Pymc3 implements NUTS, which efficient as it is, is not able to explore discrete parameter spaces. Other samplers are able to do so, but not efficiently and potentially giving inaccurate distributions.  
-By marginalizing over the discrete values in the model, we can still use NUTS in this model formulation without loss of information. 
 
 The overall formula for the model:  
 y = intercept + intercept_prod + alpha_prod * price + intercept_country + alpha_country * price  
