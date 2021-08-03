@@ -14,7 +14,7 @@ This is essentially a back of the envelope study for the identification of outli
 When dealing with data which does not follow time, finding outliers is hard, but even simple approaches might yield decent results. Setting a threshold for the percentile that determines what is a classifier works nicely in one dimensional data, and might even be useful in low dimensional data. To make sure, add a Bonferroni Outlier test and whatever you decide, it has some support.  
 For time series that evidently not a satisfying answer. Even very rare values can be periodical; this is in fact a common pattern.  
 
-One decent definition of outlier is a measurement that does not fit with the data generating process.   
+One definition of outlier is a measurement that does not fit with the data generating process.   
 For a sufficient amount of samples, the signal makes itself clear, even when in presence of _significant_ noise. Let's focus on the problem with a small amount of data points — something like monthly series, a frequent business scenario.  
 
 ___
