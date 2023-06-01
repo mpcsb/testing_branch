@@ -5,7 +5,12 @@ title: "About"
 subscribe: true
 --- 
 
-This is a personal blog containing experiments or tests I've carried out over time: essentially the content of the blog is something that would reside on a sandbox or on a branch created to test some feature.   
-All post will likely get better cosmetics and a clearer narrative; it's likely that some evolution takes place.
+Welcome to TestingBranch. This space serves as a repository of my tech explorations and experiments, often sprouting from side projects or assignments from customers.  
 
-Let me know what you think!
+My name is Miguel Batista. This blog's objective is to document the results, the learning, the failures, and the successes.  
+
+As TestingBranch evolves, expect to see posts become more polished, narratives more clear, and ideas continually updating.
+
+Your thoughts and feedback are always welcome. If you'd like to share your ideas or ask a question, drop a line at miguelcbatista [at] gmail [dot] com.
+
+Thank you for visiting.
