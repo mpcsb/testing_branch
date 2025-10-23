@@ -17,7 +17,7 @@ Linear models handle noisy observations well — they stay focused on the main s
 
 For exploring counterfactual or simulated scenarios, that mix of simplicity and principled uncertainty is exactly what we need.
 
----
+
 ## Case Study
 
 A good example for this kind of modeling is converting sales opportunities.
@@ -29,7 +29,7 @@ Still, the data doesn’t capture everything. Competitor pricing, credit limits,
 
 Because we understand this process and the role of price so well, it makes an ideal test case for a simple Bayesian model.
 
----
+
 ## Data
 
 We’ll start with a small simulated dataset of 500 sales opportunities.  
@@ -62,7 +62,7 @@ Higher simulation noise makes that division fuzzier and the classification probl
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure> 
 
----
+
 
 ## Model
 
@@ -169,7 +169,7 @@ Parameters with wider posterior curves imply higher uncertainty, which naturally
 Listing their standard deviations is an intuitive way to see why some predictions carry more uncertainty than others.
 
 
----
+
 ## Simulations — Discounts and Mark-ups
 
 Linear models extrapolate reasonably well, though they assume a linear relation.  
