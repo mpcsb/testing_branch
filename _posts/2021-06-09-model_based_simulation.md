@@ -82,17 +82,11 @@ Because we know price has the strongest influence, we’ll assign a prior that a
 
 Formally:
 
-\[
-\begin{aligned}
-y &= \text{intercept} 
-   + \text{intercept}_{\text{prod}} 
-   + \alpha_{\text{prod}} \cdot \text{price} 
-   + \text{intercept}_{\text{country}} 
-   + \alpha_{\text{country}} \cdot \text{price} \\
-p &= \text{logit}^{-1}(y) \\
-\text{observations} &\sim \text{Bernoulli}(p)
-\end{aligned}
-\]
+y_i = β0 + β_prod[prod_i] + β_ctry[country_i] + α_prod[prod_i]*price_i + α_ctry[country_i]*price_i
+p_i = sigmoid(y_i)
+status_i ~ Bernoulli(p_i)
+
+
 
 
       
