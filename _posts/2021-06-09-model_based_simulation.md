@@ -9,26 +9,37 @@ comments: true
 
 --- 
 
-For this post, we're going to build a very simple model and extract insights from it in order to simulate specific scenarios.  
-Linear models are able to handle very noisy observations with some abiity and are in the end more resilient — as oppposed to high variance models, they don't get lost in the weeds, focusing on irrelevant details.   
-Using Bayesian regression models, we have additional strengths in our model: the ability to inject domain knowledge in a model is fundamental when observations alone may not be sufficient to determine the driving factors in our outcomes; we can quantitfy the uncertainty associated with our predictions in a principled way. It comes directly from the posterior distributions, straight from the working principle of the algorithm; one additional advantage is the fact that the end result of a bayesian model are probability distributions, which means that we can communicate probabilities to domain experts instead of p-values, confidence intervals, ... or other sophisticated statistical constructs.  
-If we want to estimate the outcome of simulated scenarios, this is very valuable.  
+## Motivation
+
+In this post, we’ll build a simple model and use it to simulate a few scenarios.
+
+Linear models handle noisy observations well — they stay focused on the main signal instead of chasing small fluctuations. Bayesian regression adds key advantages: we can encode domain knowledge as priors, quantify uncertainty directly from the posterior, and express results as probabilities rather than p-values or arbitrary confidence intervals.
+
+For exploring counterfactual or simulated scenarios, that mix of simplicity and principled uncertainty is exactly what we need.
 
 ---
+## Case Study
 
-One study that seems particularly suited for this, is the case of converted sales opportunities.  
-To give just enough context, typically sales reps log opportunities in the accounts they monitor, and they log information relevant for it. In particular, the unit price of the offer and status — whether it was converted or not.     
-Some attributes in these logs end up being very informative for the outcome of the opportunity. Much like with anything that we purchase, the price is *the* driving factor behind a conversion.  
-That said, the data does not contain all information needed to make deterministic claims about the opportunity; competitor pricing conditions or the credit limit for a specific account would of course have an impact, and in it's absence, the conversion target appears noisier.
-Because we understand what is being study so well, and we understand the impact of pricing, it's an ideal case to model.  
+A good example for this kind of modeling is converting sales opportunities.
+
+Sales reps typically log opportunities under their accounts, along with details such as the offered unit price and whether the deal was ultimately won or lost.  
+Some of these attributes are naturally informative, and, as with most purchases, price is often the dominant factor behind the conversion.
+
+Still, the data doesn’t capture everything. Competitor pricing, credit limits, or internal approval rules can all affect the outcome, and their absence adds noise to the target variable.
+
+Because we understand this process and the role of price so well, it makes an ideal test case for a simple Bayesian model.
 
 ---
+## Data
 
-Let's set up a small simulated dataset of 500 opportunities.  
-There will be a conversion status (won/lost -> 1/0) and it will depend primarily on the unit price of the items being sold as well as specific attributes (the account country and the product being sold) -- this is represented with a random effect and can be interpreted as potential sales reps' discounts or product promotions.  
-Additionally, random effects were also added, and here we want to represent factors that have a direct impact on the conversion of the opportunity, essentially model market competitiveness.  
+We’ll start with a small simulated dataset of 500 sales opportunities.  
+Each record has a conversion status (`won` = 1, `lost` = 0) that depends mainly on the **unit price** offered, along with two categorical attributes — the **account country** and the **product ID**.  
+These are modeled as *random effects*, representing factors such as sales-rep behavior, discounts, or product-specific promotions.  
 
-A preview of the dataset below. For the model, we'll ignore the amount ordered, informative as it may be, and focus only on the unit_price, country and product ID.    
+Additional random variation is included to capture unobserved factors that influence conversion — for instance, market competitiveness or credit conditions.
+
+A sample of the dataset is shown below.  
+For simplicity, the model will ignore the `amount` column (informative but unnecessary here) and focus on `unit_price`, `country`, and `product ID`.
 
 | id  | unit_price | p_id | amount     | country | status |
 |-----|------------|------|------------|---------|--------|
@@ -40,7 +51,9 @@ A preview of the dataset below. For the model, we'll ignore the amount ordered, 
 
 Check the data generating [code](https://www.testingbranch.com/src_model_simulation/) for the specifics.  
  
-Two plots that show how the target varies with the 5 simulated products and the 3 simulated countries. There is a division on the ratio of the offered unit price and the base price, but it's not a perfect boundary: increasing the simulation noise will make this division less clear and overall, create a harder problem.  
+The plots below show how the conversion target varies across the five simulated products and three countries.  
+The division follows the ratio of offered price to base price, though it’s not a strict boundary.  
+Higher simulation noise makes that division fuzzier and the classification problem harder overall.
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/country_product.png" | relative_url }})
@@ -51,19 +64,36 @@ Two plots that show how the target varies with the 5 simulated products and the 
 
 ---
 
-Let's then setup a simple model to study converted opportunities. This is not meant to ideally model the data, it's just a basic object to generate simulations.  
+## Model
 
-I'll use pymc3 to implement the bayesian form of a logistic regression. If some aspect behind the model definition escapes you, refer to their [examples and docs](https://docs.pymc.io/).   
-The pricing figures are normalized by the base pricing of each product; essentially a transformation that scales the figures and makes them close to zero (naturally easy to assign prior distributions to).  
+Let’s set up a simple model to study opportunity conversion.  
+This isn’t meant to perfectly fit the data — just a basic object for controlled simulations.
 
-Our model will have a linear terms for products and for countries in addition to a common intercept; it will use a logit as a link function to generate probabilities. These probabilities are used to generate a Binomial distribution that model our observations.  
+We’ll use **PyMC3** to implement a Bayesian version of logistic regression.  
+If any part of the definition feels unclear, check their [examples and docs](https://www.pymc.io/).
 
-Because we know that the unit price is the most important factor here, let's set a prior distribution for a multiplicative parameter, which is free to reach larger values easily.    
+The unit price values are normalized by each product’s base price.  
+This scaling keeps features near zero, which simplifies the choice of priors.
 
-The overall formula for the model:  
-y = intercept + intercept_prod + alpha_prod * price + intercept_country + alpha_country * price  
-prob = inverse_logit(y)  
-observations ~ Binomial(p=prob)  
+The model includes linear terms for **product** and **country**, along with a common intercept, and uses a **logit** link to map the linear predictor to probabilities.  
+These probabilities then define a **Bernoulli** likelihood for the conversion outcome.
+
+Because we know price has the strongest influence, we’ll assign a prior that allows its coefficient to take relatively large (in magnitude) values.
+
+Formally:
+
+\[
+\begin{aligned}
+y &= \text{intercept} 
+   + \text{intercept}_{\text{prod}} 
+   + \alpha_{\text{prod}} \cdot \text{price} 
+   + \text{intercept}_{\text{country}} 
+   + \alpha_{\text{country}} \cdot \text{price} \\
+p &= \text{logit}^{-1}(y) \\
+\text{observations} &\sim \text{Bernoulli}(p)
+\end{aligned}
+\]
+
 
       
       N=len(train_status)
@@ -100,7 +130,7 @@ observations ~ Binomial(p=prob)
                                 target_accept=0.90, max_treedepth=10)
       az.plot_trace(trace, compact=True); plt.show()
 
-This model is simple enough for this data, so there's no divergences or anything that raises any red flags.  
+This model is simple enough for this dataset, so there are no divergences or other diagnostics raising concerns.
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/traceplot.png" | relative_url }})
@@ -109,13 +139,13 @@ This model is simple enough for this data, so there's no divergences or anything
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-Let's proceed.  
-For simple models such as this, even weaker priors would probably be informative enough. Adding terms for other attributes, like industry or some time component will make it more complex and harder to sample.  
-In cases where noise is significant and our observations are not providing a clear signal for the model to pick up, encoding knowledge in priors helps the sampler significantly.  
+Let’s proceed.  
+For simple models like this, even weaker priors would likely be informative enough. Adding extra terms, for example, industry or time components, would increase complexity and make sampling harder.  
+When the data are noisy and the signal is faint, encoding knowledge through priors can help the sampler converge and stabilize inference.
 
-
-Sampling from the posterior, we can see the separation in the conversion of opportunities by the pricing is clear.   
-We can observe the highest posterior density regions and how well it separates the normalized price. Other transformations, like zscoring the price by product, presented cleaner regions, but since the performance of the model was identical, having the price presented as it is, was more convenient for the simulations — the focus of the post.  
+Sampling from the posterior, we see that price cleanly separates converted from lost opportunities.  
+The highest posterior density regions show how conversion probability shifts with normalized price.  
+Alternative transformations, such as z-scoring price by product, produced slightly cleaner regions, but since model performance was identical, keeping the price as-is was more convenient for the simulations — the main focus of this post.
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/train_posterior.png" | relative_url }})
@@ -124,10 +154,14 @@ We can observe the highest posterior density regions and how well it separates t
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-The key to take from the model, is that if probabilities are converted to outcomes, the predictive performance of the model is good.  
 
-Below we can observe the predictions of an hold-out set and the uncertainty (the standard deviation of the posterior predictions) of each prediction. This is will be helpfull to understand how much trust can be deposited in each prediction.  
-Notice that the standard deviation for a Binomial distribution is bounded at 0.5. Anything greater would make probability pend towards the other outcome.
+The key takeaway from this model is that when predicted probabilities align well with observed outcomes, the model’s predictive performance is strong.
+
+Below we can see predictions on a hold-out set and the uncertainty of each, expressed as the standard deviation of their posterior predictive distributions.  
+This helps gauge how much trust to place in each individual prediction.
+
+For a Bernoulli variable, the posterior standard deviation is bounded by 0.5 — uncertainty is highest near p = 0.5 and decreases as probabilities approach 0 or 1.
+
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/simul_prob_var_circle1.png" | relative_url }})
@@ -136,20 +170,20 @@ Notice that the standard deviation for a Binomial distribution is bounded at 0.5
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-In addition to the posterior spread in our predictions, we can also assess uncertainty in these models by investigating the other posterior distributions that composed the model.  
-Listing the standard deviations of the posteriors is an easy way to quantify why some predictions, because they're modelled by wider curves, will have inherently more uncertainty associated.  
+In addition to the posterior prediction spread, we can also assess model uncertainty by inspecting the posterior distributions of its parameters.  
+Parameters with wider posterior curves imply higher uncertainty, which naturally propagates into predictions.  
+Listing their standard deviations is an intuitive way to see why some predictions carry more uncertainty than others.
+
 
 ---
+## Simulations — Discounts and Mark-ups
 
-Linear models extrapolate well, or at least better than some classes of models, but of course, these extrapolations assume a linear relation.  
-This is not realistic for all cases, of course — we can imagine that there are strong non-linear relations if unit price get close to zero, and also when they get several times higher than the base price.  
+Linear models extrapolate reasonably well, though they assume a linear relation.  
+That’s not always realistic — non-linear behavior appears when prices approach zero or climb far above the base level.
 
-
-If we wanted to answer the question of what discount to apply to an offer to have it accepted, in this models, it's simply a matter of sampling from the posterior with a different price value.  
-In the plot below we can see a range of discounts that would convert previously declined offers into conversions. Quite interesting! Ideally a sales rep would like to see large spikes in won opportunities without giving large discounts.  
-
-Below we can see the evolution of conversions with discounts and the color represents the mean of a measure of uncertainty (std dev of the posterior) of all previously declined offers.  
-The smaller prices will affect the outcome of the logit model, and therefore the probability (which as seen above, has a direct relation to the uncertainty). The shape of the posterior on the other hand is fixed. To put it in other words, some countries or products, because they have a lower signal-to-noise ratio, will always be more uncertain.    
+To explore what discount might turn a declined offer into a win, we can sample from the posterior at different price values.  
+The plot below shows how conversions evolve with discounts; color encodes uncertainty (posterior standard deviation) across previously lost opportunities.  
+Lower prices increase conversion probability, but products or countries with weaker signal-to-noise remain more uncertain.
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/discount.png" | relative_url }})
@@ -158,11 +192,11 @@ The smaller prices will affect the outcome of the logit model, and therefore the
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-The key point that we can take from the simulations is that adding a 20% discount on top of the previous offer will gain all of the opportunities. More than that is essentially losing money.  
+From the simulations, a discount of roughly **20%** is enough to recover nearly all lost opportunities — beyond that, additional cuts bring little gain and simply erode margin.
 
+The same approach applies to price increases: we can examine how higher unit prices trade off revenue versus conversion loss.  
+The figure below shows the decline in wins as prices rise — useful for identifying thresholds just below where business begins to drop.
 
-The same exercise can be executed to assess ideal increases to unit prices and analyze the tradeoff between revenue and declined offers in a principled manner.  
-Here we can see the amount of offers lost as we keep raising the prices — sales reps could use this to increase prices just below what would lose an offer, or to maximize profit (if you're able to sell for 3x the base price, less business could be acceptable).    
 
 {% capture fig_img %}
 ![Foo]({{ "/assets/images/bayesian_simulation/mark-up.png" | relative_url }})
@@ -171,8 +205,7 @@ Here we can see the amount of offers lost as we keep raising the prices — sale
   {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }} 
 </figure>
 
-The simulation shows that we could, based on the model, increase the price dramatically, until we lose all opportunities.  
-Both of these simulations seem to agree with our knowledge of the problem.
+Both simulations behave as expected: lower prices drive conversions, higher ones reduce them, confirming the model’s internal consistency and our intuition about the problem.
 
 ---
 
