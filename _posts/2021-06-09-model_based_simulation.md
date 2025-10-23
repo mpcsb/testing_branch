@@ -82,9 +82,9 @@ Because we know price has the strongest influence, we’ll assign a prior that a
 
 Formally:
 
-y_i = β0 + β_prod[prod_i] + β_ctry[country_i] + α_prod[prod_i]*price_i + α_ctry[country_i]*price_i
-p_i = sigmoid(y_i)
-status_i ~ Bernoulli(p_i)
+y_i = β0 + β_prod[prod_i] + β_ctry[country_i] + α_prod[prod_i]*price_i + α_ctry[country_i]*price_i  
+p_i = sigmoid(y_i)  
+status_i ~ Bernoulli(p_i)  
 
 
 
