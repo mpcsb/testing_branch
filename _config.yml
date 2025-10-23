@@ -10,19 +10,18 @@
 # Review documentation to determine if you should use `theme` or `remote_theme`
 # https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/#installing-the-theme
 
-theme                  : "minimal-mistakes-jekyll"
-# remote_theme           : "mmistakes/minimal-mistakes"
-minimal_mistakes_skin    : "contrast" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
+remote_theme: "mmistakes/minimal-mistakes@4.24.0"
+minimal_mistakes_skin: "contrast"
 
 # Site Settings
 locale                   : "en-US"
 title                    : 
 title_separator          : "  "
 subtitle                 : # site tagline that appears below site title in masthead
-name                     : "MBatista"
+name                     : "Miguel Batista"
 description              : "Posts about tests about data science, simulations and computer science."
-url                      : "www.testingbranch.com"
-baseurl                  : # the subpath of your site, e.g. "/blog"
+url                      : "https://testingbranch.com"
+baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "mpcsb/testing_branch" # "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : "/assets/images/logo.png" 
@@ -213,15 +212,6 @@ plugins:
   - jekyll-gist
   - jekyll-feed
   - jekyll-include-cache
-
-# mimic GitHub Pages with --safe
-whitelist:
-  - jekyll-paginate
-  - jekyll-sitemap
-  - jekyll-gist
-  - jekyll-feed
-  - jekyll-include-cache
-
 
 # Archives
 #  Type
