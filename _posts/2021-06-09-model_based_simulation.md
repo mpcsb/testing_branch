@@ -34,7 +34,8 @@ Because we understand this process and the role of price so well, it makes an id
 
 We’ll start with a small simulated dataset of 500 sales opportunities.  
 Each record has a conversion status (`won` = 1, `lost` = 0) that depends mainly on the **unit price** offered, along with two categorical attributes — the **account country** and the **product ID**.  
-These are modeled as *random effects*, representing factors such as sales-rep behavior, discounts, or product-specific promotions.  
+Each product and country has its own coefficient, representing factors such as sales-rep behavior, discounts, or product-specific promotions.
+(A full hierarchical version could share information across groups through hyperpriors, but here each level is modeled independently for simplicity.)
 
 Additional random variation is included to capture unobserved factors that influence conversion — for instance, market competitiveness or credit conditions.
 
@@ -82,9 +83,9 @@ Because we know price has the strongest influence, we’ll assign a prior that a
 
 Formally:
 
-y_i = β0 + β_prod[prod_i] + β_ctry[country_i] + α_prod[prod_i]*price_i + α_ctry[country_i]*price_i  
-p_i = sigmoid(y_i)  
-status_i ~ Bernoulli(p_i)  
+yᵢ = β₀ + β_prod[prodᵢ] + β_ctry[countryᵢ] + α_prod[prodᵢ]·priceᵢ + α_ctry[countryᵢ]·priceᵢ  
+pᵢ = sigmoid(yᵢ)  
+statusᵢ ∼ Bernoulli(pᵢ)
 
 
 
