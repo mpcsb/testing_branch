@@ -1,4 +1,4 @@
-**---
+---
 title:  "Noise, Stability, and Calibration"
 excerpt: "How models behave when the data gets messy — and what calibration does about it."
 header:
