@@ -1,6 +1,6 @@
 ---
 title:  "Noise, Stability, and Calibration"
-excerpt: "How models behave when the data gets messy — and what calibration does about it."
+excerpt: "How models behave when data gets messy"
 header:
   overlay_image: /assets/images/noise_study/header.png
 tags:
