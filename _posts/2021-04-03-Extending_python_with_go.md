@@ -1,7 +1,6 @@
 ---
 title:  "Extending python with Go"
 excerpt: "2021-04-03 — A simple example of how GoPy can be used to extend python with Go native code"
-date: 
 header:
   overlay_image: /assets/images/gopy/header.jpg 
 tags:

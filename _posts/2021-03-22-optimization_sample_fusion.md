@@ -1,7 +1,6 @@
 ---
 title: "Subsampling as a strategy to find optimal parameters (2/2)"
 excerpt: "2021-03-22 — Probing and fusing parameter space explorations"
-date: 
 header:
   overlay_image: /assets/images/bayes_opt_variation/header.jpg  
 tags:
