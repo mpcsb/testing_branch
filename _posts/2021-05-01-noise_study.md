@@ -8,7 +8,6 @@ tags:
   - noise
 share: true
 subscribe: true
-comments: true
 ---
 
 ## Motivation
@@ -167,5 +166,3 @@ For ensembles, isotonic calibration transforms spiky, over-confident scores into
 > “In practice, linear models are surprisingly robust to noisy data, while complex trees can chase the noise.”  
 > — *Claudia Perlich*
 
-
-**
