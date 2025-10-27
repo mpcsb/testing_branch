@@ -12,157 +12,75 @@ subscribe: true
 
 ## Motivation
 
-Some models thrive on clean, abundant data. Others hold their own when the data is noisy, inconsistent, or incomplete.  
-This post asks a simple question that [Claudia Perlich once explored on Quora](https://www.quora.com/Which-classifier-works-best-with-noisy-data):
+A few years ago, **Claudia Perlich** wrote on [Quora](https://www.quora.com/What-are-some-of-the-biggest-misconceptions-about-data-science/answer/Claudia-Perlich) that *“linear models are surprisingly resilient to noisy data.”*  
+That line stuck with me — not just because it’s true, but because it contradicts the common instinct to reach for deeper or more “powerful” models when the data gets messy.  
 
-> *Which models degrade most gracefully when the data gets noisy?*
-
-To find out, I simulated different kinds of noise and compared **logistic regression**, **random forests**, and **XGBoost** — both *before* and *after* applying **isotonic calibration** to their predicted probabilities.
-
----
-
-## Setup
-
-We generate a synthetic binary classification dataset with moderate signal (12 features, 6 informative).  
-Noise is injected in three ways:
-
-1. **Label noise** – randomly flipping a share of true labels (0 → 80 %).  
-2. **Gaussian feature noise** – smooth jitter added to every feature.  
-3. **Laplace feature noise** – heavy-tailed outliers.
-
-Each run evaluates:
-
-- **AUC** and **accuracy** – discrimination and correctness  
-- **Log-loss** and **Brier score** – probability quality  
-- **Expected Calibration Error (ECE)** – reliability of confidence
-
-All models were trained with scikit-learn / XGBoost defaults and isotonic calibration via 3-fold cross-validation.
+I wanted to revisit that claim, reproduce it in a small controlled setup, and then extend it a bit:  
+What happens when we add *feature* noise instead of flipping labels?  
+And how does **calibration** — how well predicted probabilities align with reality — behave under both kinds of corruption?
 
 ---
 
-## Label Noise — When truth itself wobbles
+## TL;DR
 
-When labels are wrong, all models lose accuracy — but **logistic regression** holds up best.  
-Its AUC falls from ~0.93 → 0.74 as labels become 80 % corrupted.  
-Random Forest and XGBoost drop faster, confirming that high-capacity models can easily “learn” the noise.
-
-{% capture fig_img %}
-![AUC vs Label Noise]({{ "/assets/images/noise_study/label_noise_auc.png" | relative_url }})
-{% endcapture %}
-<figure>
-  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }}
-  <figcaption>
-  *Line plot showing AUC vs. label-noise fraction (x-axis 0–0.8). Curves for Logistic Regression (blue), Random Forest (green), XGBoost (orange), and their calibrated versions (dotted lines). Logistic curve declines slowest; XGBoost drops fastest.*
-  </figcaption>
-</figure>
-
-Calibration doesn’t recover accuracy — it’s not supposed to — but it **halves the ECE** for both ensembles, making their probability estimates realistic again.
-
-{% capture fig_img %}
-![Reliability Diagrams – Label Noise]({{ "/assets/images/noise_study/reliability_label_0_vs_0.8.png" | relative_url }})
-{% endcapture %}
-<figure>
-  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }}
-  <figcaption>
-  *Four reliability diagrams (0 % and 80 % label noise, before/after calibration).  
-  Uncalibrated curves bow away from the diagonal; after isotonic calibration they align closely along the 45° line.*
-  </figcaption>
-</figure>
+- **Linear models degrade gracefully** when noise increases; their bias acts as regularization.  
+- **Tree ensembles hold AUC longer** under moderate feature noise, but their **calibration collapses faster**.  
+- Once **labels** are corrupted, *no model survives*: information is lost, not just hidden.  
+- Calibration helps — but only while the underlying signal still exists.
 
 ---
 
-## Feature Noise — The world gets blurry
+## Approach
 
-Injecting Gaussian noise into features barely dents the models.  
-AUCs stay near 0.96 even with heavy jitter.  
-XGBoost and Random Forest remain accurate, and logistic regression degrades smoothly.
+The idea was to simulate a clean, linearly separable world and then contaminate it in a controlled way.
 
-{% capture fig_img %}
-![AUC vs Gaussian Noise]({{ "/assets/images/noise_study/feature_noise_gaussian_auc.png" | relative_url }})
-{% endcapture %}
-<figure>
-  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }}
-  <figcaption>
-  *Line plot of AUC vs. Gaussian-noise level. All three models cluster tightly; calibrated variants overlay nearly indistinguishably, illustrating robustness to feature jitter.*
-  </figcaption>
-</figure>
+- **Data**: 12 features, 6 informative, synthetic binary target — generated with `make_classification`.  
+- **Noise**:  
+  - *Label noise* — randomly flipping 0↔1 with probability *p*.  
+  - *Feature noise* — adding Gaussian or Laplace perturbations, scaled to each feature’s standard deviation.  
+- **Models**:  
+  Logistic regression, Random Forest, and XGBoost — each in raw and calibrated form (via isotonic regression).  
+- **Metrics**:  
+  AUC for discrimination; Expected Calibration Error (ECE) for reliability.
 
-Calibration again reduces ECE and Brier loss without touching accuracy.
+Each configuration was run over multiple seeds and averaged, using up to 3 000 samples per run.
 
-| Model | Mean ECE (before) | Mean ECE (after) |
-|:------|------------------:|-----------------:|
-| RF | 0.066 | **0.031** |
-| XGB | 0.032 | **0.024** |
-| Logistic | 0.030 | 0.031 |
-
-{% capture fig_img %}
-![Reliability – Gaussian Noise]({{ "/assets/images/noise_study/reliability_gaussian_0_vs_0.8.png" | relative_url }})
-{% endcapture %}
-<figure>
-  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }}
-  <figcaption>
-  *Two-panel reliability plot for Random Forest (or XGBoost) at 0 % vs 80 % Gaussian noise.  
-  The post-calibration curve aligns more closely with the diagonal, showing improved probability reliability.*
-  </figcaption>
-</figure>
+This isn’t a benchmark — just a sanity test of how model structure interacts with noise.
 
 ---
 
-## Heavy-Tailed (Laplace) Noise — Outliers everywhere
+## Results
 
-Laplace noise simulates occasional extreme outliers.  
-All models keep strong accuracy (AUC ≈ 0.96), but ensembles become **over-confident** in these odd regions.  
-Calibration again fixes that.
+![plots](/assets/images/noise_study/summary_grid.png)
 
-{% capture fig_img %}
-![AUC vs Laplace Noise]({{ "/assets/images/noise_study/feature_noise_laplace_auc.png" | relative_url }})
-{% endcapture %}
-<figure>
-  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }}
-  <figcaption>
-  *AUC vs. Laplace-noise level.  
-  Logistic, RF, and XGB curves remain high and close; calibration barely shifts AUC, underscoring that it affects confidence, not ranking.*
-  </figcaption>
-</figure>
+At first glance, it’s exactly what Claudia described:
 
-{% capture fig_img %}
-![Reliability – Laplace Noise]({{ "/assets/images/noise_study/reliability_laplace_0.8_xgb_cal.png" | relative_url }})
-{% endcapture %}
-<figure>
-  {{ fig_img | markdownify | remove: "<p>" | remove: "</p>" }}
-  <figcaption>
-  *Side-by-side reliability diagrams for XGBoost at 80 % Laplace noise:  
-  Left – uncalibrated (S-shaped, over-confident); Right – after isotonic calibration (points along the diagonal).*
-  </figcaption>
-</figure>
+- Under **label noise**, all models decay in lock-step. Logistic doesn’t collapse faster than the trees; they all converge toward randomness once the labels stop meaning anything.  
+- Under **feature noise**, the picture splits:  
+  - Logistic remains smooth and predictable — its linear boundary blurs but doesn’t overreact.  
+  - RF and XGB start to “chase the noise,” retaining slightly higher AUC for a while but paying for it in calibration error.  
+  - Calibration (the dashed lines) restores some sanity, but only when the signal is still recoverable.
+
+The curves are remarkably monotonic — no weird bumps, no instability.  
+And that’s the point: simple models with strong inductive bias *prefer structure over variance*.  
 
 ---
 
-## What calibration really changes
+## Discussion
 
-| Noise Type | Model | Δ ECE (before → after) |
-|:------------|:------|-----------------------:|
-| Label | XGB | −0.07 |
-| Label | RF | −0.02 |
-| Gaussian | RF | −0.03 |
-| Laplace | RF | −0.06 |
+Why is the linear model so stable here?  
+Because the underlying data was generated by a **linear process**. The logistic model has the right inductive bias — it assumes the true decision boundary is linear — so even as we inject random perturbations, it degrades gracefully.  
 
-Calibration barely nudges AUC or accuracy — but it **restores probability trustworthiness**.  
-For logistic regression, gains are minimal (it was already well-calibrated).  
-For ensembles, isotonic calibration transforms spiky, over-confident scores into credible probabilities.
+Tree-based models, by contrast, are flexible enough to “explain” small fluctuations as structure. That flexibility becomes a liability under noise: they overfit spurious splits, yielding high confidence on wrong examples, which shows up as poor calibration.  
+
+In the real world, this pattern often repeats: if your features already capture the main signal, linear baselines are hard to beat on stability. Complexity rarely saves you from bad data.
 
 ---
 
-## Takeaways
+## Conclusion
 
-- **Label noise** hurts most — accuracy collapses, especially for flexible models.  
-- **Feature noise** (Gaussian / Laplace) is survivable.  
-- **Logistic regression** remains the most stable and naturally calibrated.  
-- **XGBoost + Isotonic calibration** gives the best *calibrated* accuracy on cleaner data.  
-- Always calibrate when probabilities drive downstream decisions (risk, pricing, triage).
+This small experiment validates Perlich’s observation and extends it slightly:  
+noise doesn’t just lower accuracy — it reshapes **reliability**.  
 
----
-
-> “In practice, linear models are surprisingly robust to noisy data, while complex trees can chase the noise.”  
-> — *Claudia Perlich*
-
+Linear models trade expressive power for robustness.  
+Tree ensembles fight noise longer, but they start lying about their certainty.  
