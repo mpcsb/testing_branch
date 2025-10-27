@@ -1,6 +1,7 @@
 ---
 title: Model based simulations  
 excerpt: "Bayesian decision making applied to sales opportunities"
+date: 2021-06-09
 header:
   overlay_image: /assets/images/bayesian_simulation/header.jpg 
 share: true

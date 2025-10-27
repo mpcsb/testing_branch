@@ -1,6 +1,7 @@
 ---
 title: Identifying outliers in time series  
 excerpt: "Observing the impact of outliers in small time series"
+date: 2021-02-20
 header:
   overlay_image: /assets/images/outliers_ts/header.jpg 
 tags:

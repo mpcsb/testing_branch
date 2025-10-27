@@ -1,6 +1,8 @@
 ---
 title:  "Noise, Stability, and Calibration"
 excerpt: "How models behave when data gets messy"
+date: 2021-05-01
+last_modified_at: 2025-10-25
 header:
   overlay_image: /assets/images/noise_study/header.png
 tags:
