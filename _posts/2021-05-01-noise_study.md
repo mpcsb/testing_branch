@@ -81,3 +81,7 @@ noise doesn’t just make you wrong, it makes you confident in the wrong things.
 
 Linear models trade expressive power for robustness.  
 Tree ensembles fight noise longer, but they start lying about their certainty.  
+
+
+
+[Check the code and adjust noise distributions, switch datasets, try out different models. Have fun!](https://www.testingbranch.com/src_noise_model/)
