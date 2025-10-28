@@ -15,13 +15,13 @@ permalink: /drafts/information_noise_study_preview/
 
 ## Introduction
 
-A [post on Cook’s blog](https://www.johndcook.com/blog/2019/11/25/stochastic-rounding-and-privacy/), showed how rounding numeric values can act as a simple form of privacy.  
+A [post on Cook’s blog](https://www.johndcook.com/blog/2019/11/25/stochastic-rounding-and-privacy/) showed how rounding numeric values can act as a simple form of privacy.  
 
 That idea caught my attention: rounding is just a deterministic way of adding noise.  
 So how much information do we actually lose when we do this?
 
-This note looks at that question directly.  
-By adding Laplace noise (a common way to blur numeric data — small shifts most of the time, big ones only occasionally) of different magnitudes to a set of “ages” and measuring the mutual information with the original data, we can see how information degrades as noise grows — and how that compares to ordinary binning.  
+This note looks answers that question.  
+By adding Laplace noise (a common way to blur numeric data: small shifts most of the time, big ones only occasionally) of different magnitudes to a set of "ages" and measuring the mutual information with the original data, we can see how information degrades as noise grows and how that compares to ordinary binning.  
 Each noise scale *b* has an equivalent bin width: the point where both destroy the same amount of information.
 
 
