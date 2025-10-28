@@ -1,7 +1,7 @@
 ---
 layout: single
-title: "Quantifying Information Loss When Adding Noise to Data"
-excerpt: "Practical considerations and quantification of information loss"
+title: "Quantifying Information Loss"
+excerpt: "2025-10-28 — A quick experiment linking Laplace noise and data resolution"
 header:
   overlay_image: /assets/images/information_loss/header.jpeg
 tags:
@@ -9,11 +9,11 @@ tags:
   - information
 share: true
 subscribe: true
-permalink: /drafts/information_noise_study_preview/
 ---
 
+(This post comes from a series of old notebook ideas I’m revisiting — notes written years ago, now turned into posts.)
 
-## Introduction
+## Motivation
 
 A [post on Cook’s blog](https://www.johndcook.com/blog/2019/11/25/stochastic-rounding-and-privacy/) showed how rounding numeric values can act as a simple form of privacy.  
 
@@ -76,4 +76,5 @@ Noise isn’t bound by that because it can be *arbitrarily small or large*, adju
 - **At large noise scales, precision saturates.**  
   Beyond the data’s natural granularity, extra noise only adds randomness.
 
-
+ 
+[Check the code](https://www.testingbranch.com/src_noise_info_loss/)
