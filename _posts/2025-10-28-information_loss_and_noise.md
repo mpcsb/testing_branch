@@ -1,19 +1,21 @@
 ---
 layout: single
 title: "Quantifying Information Loss"
-excerpt: "2025-10-28 — A quick experiment linking Laplace noise and data resolution"
+excerpt: "2025-10-28 — A quick experiment linking Laplace noise and data resolution, showing how privacy and precision trade off"
+last_modified_at: 2025-10-28
 header:
   overlay_image: /assets/images/information_loss/header.jpeg
 tags:
   - noise
   - information
+  - data-privacy
 share: true
 subscribe: true
 ---
 
 (This post comes from a series of old notebook ideas I’m revisiting — notes written years ago, now turned into posts.)
 
-## Motivation
+## Why measure information loss when adding noise?
 
 A [post on Cook’s blog](https://www.johndcook.com/blog/2019/11/25/stochastic-rounding-and-privacy/) showed how rounding numeric values can act as a simple form of privacy.  
 

@@ -7,11 +7,12 @@ header:
 tags:
   - machine-learning
   - noise
+  - calibration
 share: true
 subscribe: true
 ---
 
-## Motivation
+## Why study model calibration under noisy data?
 
 A few years ago, **Claudia Perlich** wrote on [Quora](https://www.quora.com/What-are-some-of-the-biggest-misconceptions-about-data-science/answer/Claudia-Perlich) that *"linear models are surprisingly resilient to noisy data."*  
 That line stuck with me because it contradicts the common instinct to reach for deeper or more powerful models when the data gets messy.  

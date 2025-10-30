@@ -1,14 +1,21 @@
 ---
 title: Identifying outliers in time series  
 excerpt: "2021-02-20 — Observing the impact of outliers in small time series"
+last_modified_at: 2025-10-30
 header:
   overlay_image: /assets/images/outliers_ts/header.jpg 
 tags:
-    -  time series
+  - time-series
+  - gaussian-processes
+  - outliers
+  - anomaly-detection
+  - bayesian
 share: true
 subscribe: true
 comments: true
 --- 
+
+## Modeling time series outliers with Gaussian Processes
 
 This is essentially a back of the envelope study for the identification of outliers in time series. The idea is to sketch a method that associates model quality to the presence of outliers.  
 When dealing with data which does not follow time, finding outliers is hard, but even simple approaches might yield decent results. Setting a threshold for the percentile that determines what is a classifier works nicely in one dimensional data, and might even be useful in low dimensional data. To make sure, add a Bonferroni Outlier test and whatever you decide, it has some support.  

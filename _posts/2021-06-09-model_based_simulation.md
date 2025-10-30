@@ -1,17 +1,25 @@
 ---
 title: Model based simulations  
 excerpt: "2021-06-09 — Bayesian decision making applied to sales opportunities"
+last_modified_at: 2025-10-30
 header:
   overlay_image: /assets/images/bayesian_simulation/header.jpg 
+tags:
+  - bayesian
+  - simulation
+  - decision-making
+  - uncertainty
 share: true
 subscribe: true
 comments: true
 
 --- 
 
-## Motivation
+This note walks through a simple but realistic case where Bayesian logistic regression helps simulate pricing scenarios — a model based way to explore sales decisions.
 
-In this post, we’ll build a simple model and use it to simulate a few scenarios.
+## Why use Bayesian regression for model based simulations?
+
+In this post, we’ll build a simple probabilistic model and use it to simulate a few scenarios.
 
 Linear models handle noisy observations well — they stay focused on the main signal instead of chasing small fluctuations. Bayesian regression adds key advantages: we can encode domain knowledge as priors, quantify uncertainty directly from the posterior, and express results as probabilities rather than p-values or arbitrary confidence intervals.
 
@@ -70,7 +78,7 @@ Higher simulation noise makes that division fuzzier and the classification probl
 Let’s set up a simple model to study opportunity conversion.  
 This isn’t meant to perfectly fit the data — just a basic object for controlled simulations.
 
-We’ll use **PyMC3** to implement a Bayesian version of logistic regression.  
+We’ll use **PyMC3**(now PyMC) to implement a Bayesian version of logistic regression.  
 If any part of the definition feels unclear, check their [examples and docs](https://www.pymc.io/).
 
 The unit price values are normalized by each product’s base price.  
