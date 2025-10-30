@@ -1,25 +1,13 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your entire site, values
-# which you are expected to set up once and rarely need to edit after that.
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# `jekyll serve`. If you change this file, please restart the server process.
-
-# Theme Settings
-#
-# Review documentation to determine if you should use `theme` or `remote_theme`
-# https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/#installing-the-theme
-
 remote_theme: "mmistakes/minimal-mistakes@4.24.0"
 minimal_mistakes_skin: "contrast"
 
 # Site Settings
 locale                   : "en-US"
-title                    : 
-title_separator          : "  "
+title: "Testing Branch"
+title_separator: " | "
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Miguel Batista"
-description              : "Posts about tests about data science, simulations and computer science."
+description              : "Explorations in machine learning, simulation, and data modeling — practical notebooks and experiments."
 url                      : "https://testingbranch.com"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "mpcsb/testing_branch" # "mmistakes/minimal-mistakes"
