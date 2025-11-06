@@ -4,11 +4,12 @@ minimal_mistakes_skin: "contrast"
 # Site Settings
 locale                   : "en-US"
 title: "Testing Branch"
+tagline: "ML experiments, simulations & privacy metrics"
 title_separator: " | "
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "Miguel Batista"
 description              : "Explorations in machine learning, simulation, and data modeling — practical notebooks and experiments."
-url                      : "https://testingbranch.com"
+url                      : "https://www.testingbranch.com"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "mpcsb/testing_branch" # "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
