@@ -1,5 +1,5 @@
 # ---------------------
-# THEME + GENERAL CONFIG
+# THEME (Remote theme is supported by GitHub Pages)
 # ---------------------
 remote_theme: "mmistakes/minimal-mistakes@4.24.0"
 minimal_mistakes_skin: "contrast"
@@ -14,13 +14,10 @@ tagline: "ML experiments, simulations & privacy metrics"
 title_separator: " | "
 description: "Explorations in machine learning, simulation, anonymization, and data modeling — practical notebooks and experiments."
 url: "https://www.testingbranch.com"
-baseurl: ""         # MUST be empty (you host at root)
+baseurl: ""
 repository: "mpcsb/testing_branch"
 
 logo: "/assets/images/logo.png"
-teaser:
-masthead_title:
-
 words_per_minute: 150
 
 # ---------------------
@@ -39,11 +36,6 @@ search_provider: lunr
 # ---------------------
 # SEO + SOCIAL
 # ---------------------
-google_site_verification:
-bing_site_verification:
-yandex_site_verification:
-naver_site_verification:
-
 og_image: "/assets/images/logo.png"
 
 twitter:
@@ -58,12 +50,6 @@ social:
     - "https://linkedin.com/in/miguelcbatista/"
 
 # ---------------------
-# AUTHOR PROFILE (optional, keep minimalist)
-# ---------------------
-author:
-  name: "Miguel Batista"
-
-# ---------------------
 # PAGINATION
 # ---------------------
 paginate: 6
@@ -74,7 +60,7 @@ paginate_path: "/page:num/"
 # ---------------------
 collections:
   drafts:
-    output: false      # prevent accidental indexing of drafts
+    output: false
     permalink: /:categories/:title/
 
 # ---------------------
@@ -87,17 +73,6 @@ highlighter: rouge
 # PERMALINKS
 # ---------------------
 permalink: /:categories/:title/
-
-# ---------------------
-# PLUGINS
-# ---------------------
-plugins:
-  - jekyll-paginate
-  - jekyll-sitemap
-  - jekyll-gist
-  - jekyll-feed
-  - jekyll-include-cache
-  - jekyll-seo-tag
 
 # ---------------------
 # DEFAULTS
