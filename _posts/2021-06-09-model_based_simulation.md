@@ -1,6 +1,6 @@
 ---
 title: Model based simulations  
-excerpt: "2021-06-09 — Bayesian decision making applied to sales opportunities"
+excerpt: "2023-06-09 — Bayesian decision making applied to sales opportunities"
 last_modified_at: 2025-10-30
 header:
   overlay_image: /assets/images/bayesian_simulation/header.jpg 

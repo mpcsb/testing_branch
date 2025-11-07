@@ -4,7 +4,7 @@ excerpt: "2021-03-22 — Probing and fusing parameter space explorations"
 header:
   overlay_image: /assets/images/bayes_opt_variation/header.jpg  
 tags:
-    - machine learning 
+    - machine-learning 
     - optimization
 share: true
 subscribe: true
