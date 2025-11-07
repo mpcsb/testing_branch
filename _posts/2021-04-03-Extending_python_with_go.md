@@ -4,7 +4,7 @@ excerpt: "2021-04-03 — A simple example of how GoPy can be used to extend pyth
 header:
   overlay_image: /assets/images/gopy/header.jpg 
 tags:
-    -  
+    - python
 share: true
 subscribe: true
 comments: true

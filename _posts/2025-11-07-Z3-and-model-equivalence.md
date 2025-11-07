@@ -1,5 +1,5 @@
 ---
-title:  "Semantic Model Checking for Model Equivalence (Using Z3)"
+title:  "Model Equivalence using Z3"
 excerpt: "2025-11-07 — Using Z3 to prove two ML models are logically equivalent — or extract the exact counterexample where they diverge."
 header:
   overlay_image: /assets/images/model_equivalence/header.jpg

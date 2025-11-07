@@ -5,6 +5,7 @@ header:
   overlay_image: /assets/images/hyperparam_sampling/header.jpg 
 tags:
     - optimization 
+    - machine-learning
 share: true
 subscribe: true
 comments: true
