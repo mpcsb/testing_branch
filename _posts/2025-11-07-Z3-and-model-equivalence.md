@@ -143,7 +143,6 @@ def z3_label_counterexample(big, pruned, lo, hi):
 
 We now have the exact `x` where the two models diverge.
 
----
 
 ## Visualizing the disagreement surface
 
@@ -157,7 +156,6 @@ These visuals are easy to track, and with some work, creating something for the 
 
 Most of the input space is essentially the same, but we see precise "fault lines" where pruning changes the target predictions.
 
----
 
 ##  Minimal explanation trace 
 
@@ -176,7 +174,7 @@ def trace_disagreement(x_cex, big, pruned, top_k=8):
 
 This produces a ranked list of the trees that mattered with respect to the divergence of the two models.
 
----
+
 
 ## Why this matters
 
@@ -194,7 +192,6 @@ I experimented with neural nets a bit and things get complex really fast; when c
 Expanding this to an LLM, and how we could assess whether a distlied model be roughly equivalent, would be practically impossible.
 
 
----
 
 ## Closing Remarks
 
@@ -217,4 +214,8 @@ https://www.ccs.neu.edu/~stavros/papers/2022-formats-NN_Equivalence.pdf
 
 Their work focuses on neural networks and supports strict + approximate equivalence relations.
 
-This post adapts a similar encoding idea to decision-tree ensembles (random forests), making equivalence checking usable in practical DS/ML pipelines.
+This post adapts a fairly similar encoding idea to decision-tree ensembles (random forests), making equivalence checking usable in practical ML pipelines.
+
+
+
+[Check the code: adjust model sizes, see where Z3 breaks! Have fun!](https://www.testingbranch.com/src_noise_model/)
