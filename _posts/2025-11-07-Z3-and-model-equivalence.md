@@ -15,28 +15,21 @@ comments: false
 ---
 
 Most model compression techniques stop after validation accuracy.
-If loss and accuracy remain roughly the same, the task is completed.
-
-But there’s something flawed in that logic:  
-validation accuracy doesn’t tell us *where the models disagree*, it tells us only where they didn’t disagree on the points we checked.
+If loss and accuracy remain roughly the same, the task is completed.  
+Validation accuracy only tells us the models agree on the samples we checked; it says nothing about the rest of the input space.
 
 
-## Z3 for Model Equivalence: Proving ML Models Match (or Finding the exact input where they don’t)
-
-**Goal**: Instead of *measuring* similarity between models, **prove** they're equivalent, and where they're not: extract the exact counterexample.
-
-
-## The question when pruning / replacing / compressing / distlilling a model
+## When pruning or simplifying a model
 
 We prune or replace models for practical reasons (essentially operational constraints).  
 Things like: latency, memory, cost, deployment simplicity, simplification for interpretability...
 
-And this will for instance creating a pipeline like so: Random Forest → Pruned RF. It's our use case in this post.
+Example: Random Forest → Pruned Random Forest
 
-We check if the validation accuracy didn’t change, and hope it means the models are the same.
-
+We check if the validation accuracy is the same, and hope it means the models are the same.
 That's false.  
-And dependending on the agressiveness of the pruning and amount of data at our disposal, something critical to know.
+
+And depending on the agressiveness of the pruning and amount of data at our disposal, something critical to know.
 
 Validation tells us **similarity on sampled points**, on information that we already have.  
 What we want is **equivalence**:
@@ -48,9 +41,9 @@ For all inputs x in the domain:
 
 If the answer is no, we want the exact violating input *X*
 
----
+## Z3 for Model Equivalence: Proving ML Models Match (or Finding the exact input where they don’t)
 
-## Enter Z3 (SMT solver)
+**Goal**: Instead of *measuring* similarity between models, **prove** they're equivalent, and where they're not: extract the exact counterexample.
 
 Z3 is a **constraint solver** from Microsoft Research.  
 Optimizers try values and adjust based on results.  
@@ -102,6 +95,8 @@ and let Z3 do the search.
 
 ## Code: Locating the exact counterexample
 
+If a single violating input exists, Z3 returns it: guaranteed and verifiable.  
+
 ```python
 from z3 import Real, RealVal, If, And, Or, Sum, Solver, sat
 
@@ -136,25 +131,14 @@ def z3_label_counterexample(big, pruned, lo, hi):
     m = s.model()
     return [float(str(m[xi])) for xi in x]
 ```
+`lo` and `hi` are per-feature min/max bounds Z3 must respect. This prevents it from returning absurd values like x = 10⁹
+
 
 ```
 >>> [-0.965, 0.549, 0.247, 0.589, 0.475, 3.397, ...]
 ```
+This vector is a real point in feature space that breaks model equivalence.  
 
-We now have the exact `x` where the two models diverge.
-
-
-## Visualizing the disagreement surface
-
-| Interpretation | Image |
-|----------------|--------|
-| Where vote probability differs the most | ![](/assets/images/model_equivalence/1.png) |
-| Where the predicted labels actually differ | ![](/assets/images/model_equivalence/2.png) |
-| Zoom on violation region with arbitrary differnce | ![](/assets/images/model_equivalence/3.png) |
-
-These visuals are easy to track, and with some work, creating something for the most problematic combinations of features, would be very revealing for the pruning process.
-
-Most of the input space is essentially the same, but we see precise "fault lines" where pruning changes the target predictions.
 
 
 ##  Minimal explanation trace 
@@ -174,6 +158,19 @@ def trace_disagreement(x_cex, big, pruned, top_k=8):
 
 This produces a ranked list of the trees that mattered with respect to the divergence of the two models.
 
+## Visualizing the disagreement surface
+
+| Interpretation | Image |
+|----------------|--------|
+| Where vote probability differs the most | ![Heatmap showing where vote probability diverges the most between big and pruned model](/assets/images/model_equivalence/1.png) |
+| Where the predicted labels actually differ | ![Binary map showing where the two models disagree in predicted label across the same 2D feature slice](/assets/images/model_equivalence/2.png) |
+| Zoom on violation region with arbitrary difference | ![Zoomed-in view of disagreement region filtered to only high-confidence conflicting predictions](/assets/images/model_equivalence/3.png) |
+
+These visuals are easy to track, and with some work, creating something for the most problematic combinations of features, would be very revealing for the pruning process.
+
+Most of the input space is essentially the same, but we see precise "fault lines" where pruning changes the target predictions.
+
+
 
 
 ## Why this matters
@@ -187,9 +184,9 @@ Validation gives confidence, Z3 gives **certainty**.
 
 
 ## Why this does *not* work well for neural networks
-I experimented with neural nets a bit and things get complex really fast; when compared with conditional logic, which are *relatively* small models, even moderate networks use many thousands of numeric operations that interact in complex, continuous ways. For Z3 to reason about them, every multiplication and activation has to become a constraint.
+I experimented with neural nets a bit and things get complex really fast; even moderate sized networks use many thousands of numeric operations that interact in complex, continuous ways. For Z3 to reason about them, every multiplication and activation has to become a constraint.
 
-Expanding this to an LLM, and how we could assess whether a distlied model be roughly equivalent, would be practically impossible.
+Expanding this to an LLM... would be practically impossible.
 
 
 
@@ -206,16 +203,16 @@ Just **mathematically guaranteed model equivalence (or a counterexample).**
 
 ## Further reading — neural network equivalence via SMT
 
-The idea of proving that two models are equivalent (or extracting counterexamples when they aren’t) originates from formal verification research — in particular:
+The idea of proving that two models are equivalent (or extracting counterexamples when they aren’t) originates from formal verification research, in particular:
 
 Eleftheriadis et al., On Neural Network Equivalence Checking Using SMT Solvers.
 FORMATS 2022.
-https://www.ccs.neu.edu/~stavros/papers/2022-formats-NN_Equivalence.pdf
-
+https://www.ccs.neu.edu/~stavros/papers/2022-formats-NN_Equivalence.pdf  
 Their work focuses on neural networks and supports strict + approximate equivalence relations.
 
 This post adapts a fairly similar encoding idea to decision-tree ensembles (random forests), making equivalence checking usable in practical ML pipelines.
+Z3 effectively constructs the entire random forest as a single logical expression.
 
 
 
-[Check the code: adjust model sizes, see where Z3 breaks! Have fun!](https://www.testingbranch.com/src_noise_model/)
+[Check the code: adjust model sizes, see where Z3 breaks!](https://www.testingbranch.com/src_noise_model/)
