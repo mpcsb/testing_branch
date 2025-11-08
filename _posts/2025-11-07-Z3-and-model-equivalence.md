@@ -182,14 +182,6 @@ Most of the input space is essentially the same, but we see precise "fault lines
 
 Validation gives confidence, Z3 gives **certainty**.
 
-
-## Why this does *not* work well for neural networks
-I experimented with neural nets a bit and things get complex really fast; even moderate sized networks use many thousands of numeric operations that interact in complex, continuous ways. For Z3 to reason about them, every multiplication and activation has to become a constraint.
-
-Expanding this to an LLM... would be practically impossible.
-
-
-
 ## Closing Remarks
 
 - We can formally prove two models behave identically.
