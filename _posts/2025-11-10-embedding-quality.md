@@ -5,7 +5,6 @@ header:
   overlay_image: /assets/images/embedding_quality/header.png
 tags:
   - embeddings
-  - metrics
   - rag
   - machine-learning
   - z3
@@ -175,3 +174,7 @@ Vector DBs assume a metric space.
 Most embedding models don’t always return one.  
 
 If the embedding space breaks — wrong model, wrong corpus, or compression — nearest neighbors aren't nearest and the R in RAG stands for roulette...
+
+
+
+[Check the code](https://www.testingbranch.com/src-embedding-quality/)
