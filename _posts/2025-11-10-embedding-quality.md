@@ -1,6 +1,6 @@
 ---
-title:  "Embeddings Break Geometry (and Compression Makes It Worse)"
-excerpt: "2025-11-11 — Testing if embeddings behave like a metric: triangle inequality, neighborhood stability, and the effect of PCA + quantization."
+title:  "Using geometry to chose embeddings"
+excerpt: "2025-11-11 — Empirical evaluation of local geometry in vector embeddings across models and corpora."
 header:
   overlay_image: /assets/images/embedding_quality/header.png
 tags:
