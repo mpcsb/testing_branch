@@ -226,4 +226,4 @@ Z3 effectively constructs the entire random forest as a single logical expressio
 
 
 
-[Check the code: adjust model sizes, see where Z3 breaks!](https://www.testingbranch.com/src_noise_model/)
+[Check the code: adjust model sizes, see where Z3 breaks!](https://www.testingbranch.com/src-model-equivalence/)
