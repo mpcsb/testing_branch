@@ -1,6 +1,6 @@
 ---
 title: Identifying outliers in time series  
-excerpt: "2021-02-20 — Observing the impact of outliers in small time series"
+excerpt: "2021-02-20 — Observing the impact of outliers in small time series using gaussian processes"
 last_modified_at: 2025-10-30
 header:
   overlay_image: /assets/images/outliers_ts/header.jpg 

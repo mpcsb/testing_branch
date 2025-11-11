@@ -101,7 +101,7 @@ Z3 doesn't brute force. It treats distances as constraints and either:
 
 
 ## Results
-Four parts: 
+Three parts: 
 
 ### 1) UMAP: do embeddings even cluster coherently?
 
@@ -136,18 +136,6 @@ Even at τ = 0.1 (a huge forgiveness margin), PCA+quantized still breaks.
 - compressed embedding collapses by k=10
 
 If retrieval expands k during rerank / recall-then-rerank — expect garbage neighbors.
-
----
-
-### 4) Triangle violation scatter: severity of failures
-
-![triangle_violations](/assets/images/embedding_quality/triangle_violations.png)
-
-In an ideal case, every point in this scatter would lie on the diagonal, meaning the direct distance between any two points exactly equals the distance via an intermediate neighbor (triangle equality holds with no violations)
-
-- `A_raw`: tight
-- `B_raw`: acceptable
-- `B_pca64q4`: scattered everywhere, structure is weak
 
 ---
 
