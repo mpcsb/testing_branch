@@ -1,5 +1,5 @@
 ---
-title:  "Using geometry to chose embeddings"
+title:  "Using geometry to choose embeddings"
 excerpt: "2025-11-11 — Empirical evaluation of local geometry in vector embeddings across models and corpora."
 header:
   overlay_image: /assets/images/embedding_quality/header.png
