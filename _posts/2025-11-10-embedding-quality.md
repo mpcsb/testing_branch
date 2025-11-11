@@ -173,7 +173,7 @@ In an ideal case, every point in this scatter would lie on the diagonal, meaning
 Vector DBs assume a metric space.  
 Most embedding models don’t always return one.  
 
-If the embedding space breaks — wrong model, wrong corpus, or compression — nearest neighbors aren't nearest and the R in RAG stands for roulette...
+If the embedding space breaks (wrong model, wrong corpus, or compression) nearest neighbors aren't nearest and the R in RAG stands for roulette...
 
 
 
