@@ -13,6 +13,9 @@ share: true
 subscribe: true
 comments: false
 ---
+Code: https://github.com/mpcsb/tb_model_equivalence
+
+---
 
 Most model replacement flows stop after **validation accuracy**.
 
@@ -223,7 +226,3 @@ Their work focuses on neural networks and supports strict + approximate equivale
 
 This post adapts a fairly similar encoding idea to decision-tree ensembles (random forests), making equivalence checking usable in practical ML pipelines.
 Z3 effectively constructs the entire random forest as a single logical expression.
-
-
-
-[Check the code: adjust model sizes, see where Z3 breaks!](https://www.testingbranch.com/src-model-equivalence/)
