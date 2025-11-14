@@ -13,7 +13,8 @@ share: true
 subscribe: true
 comments: false
 ---
-Code: https://github.com/mpcsb/tb_model_equivalence
+Code: [github.com/mpcsb/tb_model_equivalence](https://github.com/mpcsb/tb_model_equivalence)
+
 
 ---
 

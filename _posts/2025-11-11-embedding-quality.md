@@ -12,8 +12,7 @@ share: true
 subscribe: true
 comments: false
 ---
-
-Code: https://github.com/mpcsb/tb-embedding-quality
+Code: [github.com/mpcsb/tb-embedding-quality](https://github.com/mpcsb/tb-embedding-quality)
 
 ## Why this matters
 
