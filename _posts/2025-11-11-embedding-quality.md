@@ -13,6 +13,8 @@ subscribe: true
 comments: false
 ---
 
+Code: https://github.com/mpcsb/tb-embedding-quality
+
 ## Why this matters
 
 
@@ -163,6 +165,4 @@ Most embedding models don’t always return one.
 
 If the embedding space breaks (wrong model, wrong corpus, or compression) nearest neighbors aren't nearest and the R in RAG stands for roulette...
 
-
-
-[Check the code](https://www.testingbranch.com/src-embedding-quality/)
+ 
