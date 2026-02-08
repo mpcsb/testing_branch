@@ -1,8 +1,8 @@
 ---
 title: "Re-Identification vs Anonymization Strength"
-excerpt: "2025-11-20 — Exploring how increasing k-anonymity affects data utility and the attacker’s ability to re-identify records."
+excerpt: "2026-02-08 — Exploring how increasing k-anonymity affects data utility and the attacker’s ability to re-identify records."
 header:
-  overlay_image: /assets/images/re_identification/header.jpg
+  overlay_image: /assets/images/re_identification/header.png
 tags:
   - anonymization
   - privacy
@@ -11,9 +11,11 @@ share: true
 subscribe: true
 comments: false
 ---
+Code: [github.com/mpcsb/reidentification](https://github.com/mpcsb/reidentification)
 
 
-# Re-Identification Risk vs k-Anonymity: An Experimental Walkthrough
+
+## Re-Identification Risk vs k-Anonymity: An Experimental Walkthrough
 
 Most discussions of anonymization focus on buzzwords like **k-anonymity** and **differential privacy**, but few dig into what actually happens to a dataset as anonymity strength increases.  
 
@@ -26,7 +28,7 @@ The goal is to illuminate where the balance lies between keeping data useful and
 
 ## Data Generation and Anonymization Setup
 
-For our experiment, we generated a synthetic dataset of **2,000 individuals**, each with the following fields:
+For our experiment, we generated a synthetic dataset of **2000 individuals**, each with the following fields:
 
 | Field        | Description                                                    |
 |--------------|----------------------------------------------------------------|
@@ -146,7 +148,7 @@ A Hit@1 of **50%** means the attacker correctly re-identified half of the indivi
 
 With the attack strategy and success metric defined, we now examine how re-identification risk and data utility change as anonymization strength increases.
 
-# Results
+## Results
 
 ## Re-identification Success vs. Anonymity Level
 
@@ -277,7 +279,7 @@ Deciding where to operate is a **policy choice**:
 - **high k** → high privacy, low utility  
 
 
-# Conclusion and Discussion
+## Conclusion and Discussion
 
 Our empirical exploration highlights how increasing **k-anonymity** leads to **diminishing returns**.
 
@@ -378,7 +380,7 @@ For many cases:
 
 ---
 
-# Key Takeaways
+## Key Takeaways
 
 - **k-anonymity trades precision for privacy**.  
   Generalization and suppression remove detail from QIs.
