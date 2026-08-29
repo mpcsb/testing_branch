@@ -1,6 +1,7 @@
 ---
 title: "Distilling an LLM, then choosing what to label next"
 excerpt: "2026-08-29 — Using a small student model not only to reproduce LLM labels, but to find weak class boundaries and decide where the next labels will be most useful."
+permalink: /distillation-targeted-labels/
 header:
   overlay_image: /assets/images/llm_distillation/header.jpg
   caption: "Photo: [Doug Lynne](https://commons.wikimedia.org/wiki/File:Twin_Sisters,_Jura_Knob.jpg), [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)"
@@ -13,6 +14,8 @@ share: true
 subscribe: true
 comments: false
 ---
+Code: [github.com/mpcsb/tb-llm-distillation](https://github.com/mpcsb/tb-llm-distillation)
+
 LLMs are very good at classification tasks that used to require a custom model.
 
 They can also be awkward to serve when the task itself is stable. The model is large, often proprietary, its behaviour can change, and every prediction has a cost.
