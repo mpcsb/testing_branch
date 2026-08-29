@@ -1,5 +1,5 @@
 ---
-title: "After distillation: where should the next label go?"
+title: "LLM distillation: optimization what to label?"
 excerpt: "2026-08-29 — Using a student model to audit LLM labels, find weak class boundaries, and spend the next labelling budget where it can still change the model."
 permalink: /distillation-targeted-labels/
 header:
@@ -18,17 +18,17 @@ Code: [github.com/mpcsb/tb-llm-distillation](https://github.com/mpcsb/tb-llm-dis
 
 An LLM can label a text-classification dataset without building a task-specific model first. But a large API pass still takes time, and every new prediction carries the teacher's latency and cost. The labels are not ground truth either.
 
-The difficult examples are often where an LLM is least consistent: mixed evidence, vague language, neighbouring classes, and rules with awkward exceptions. Those examples also define the decision boundary of the smaller model trained from the labels.
+The difficult examples are often where an LLM is least consistent: mixed evidence, vague language, neighbouring classes, and rules with exceptions. Those examples also define the decision boundary of the smaller model trained from the labels.
 
 That shifts the question **after** distillation:
 
 > Once a student model has learned most of the task, where should the next unit of labelling budget go?
 
-Not towards another random batch. Much of that batch will repeat what the model already knows.
+Not towards another random batch. Much of that batch will repeat what the model already knows. 
 
-A better use of the budget is to probe the teacher-labelled dataset with the student, identify weak class boundaries, and retrieve new examples from those regions.
+A better use of the budget is to probe the teacher-labelled dataset with the student, identify weak class boundaries, particular examples of low performance attributes, and retrieve new examples from those regions.
 
-Distillation also changes the economics of inference. Once trained, the student can score large datasets locally—even on CPU—without a paid LLM call for every row. CPU inference is not fast in absolute terms, but an offline batch can cost much less than repeatedly sending the same task to a large hosted model. The teacher is used sparingly, where semantic judgement is needed. The student handles dense, routine passes over training, validation and acquisition data.
+Distillation changes the economics of running inference. Once trained, the student can predict on large datasets locally (in particular on CPU) without a paid LLM call for every row. CPU inference is not fast in absolute terms, but an offline batch can cost much less than repeatedly sending the same task to a large hosted model and such instances are readily available. The teacher is used just for teaching and rarely, when judgement is needed. The student handles dense, routine passes over training, validation and acquisition data, and specializes.
 
 ---
 
@@ -50,7 +50,7 @@ A disagreement can mean several things:
 
 - the LLM label is wrong;
 - the student is wrong;
-- the example is genuinely ambiguous;
+- the example is genuinely hard;
 - the dataset contains too few examples of that kind;
 - the class definition is unclear at that boundary.
 
@@ -60,28 +60,48 @@ LLM supervision makes this especially relevant. The same labelling request can p
 
 ---
 
-## A public binary experiment
+## A binary classification experiment
 
-For a reproducible example, I used 3,000 Amazon appliance reviews and asked an LLM to assign one of two labels:
+I set up a fast and reproducible example to illustrate the mechanics of this: 3000 Amazon appliance reviews and an LLM to assign one of two labels:
 
 - `defect`: a concrete failure in construction, operation, durability, or intended performance;
-- `no_defect`: no product failure, including preference, compatibility, misuse, shipping, packaging, seller, or service issues.
+- `no_defect`: all else.
 
-The distinction is semantic rather than sentimental. A one-star review can describe incompatibility rather than a defect. A mostly positive review can still mention a concrete failure. The LLM received the product and review text plus the labelling rules, but not the star rating.
+The distinction is semantic. A one-star review can describe incompatibility rather than a defect. A mostly positive review can still mention a concrete failure. The LLM received the product and review text plus the labelling rules, but not the star rating.
 
-I kept 400 rows as a holdout and used 2,600 for development. A `microsoft/deberta-v3-base` student, trained only on title and review text, reached 0.9025 accuracy and **0.8819 macro F1**.
+I kept 400 rows as a holdout and used 2,600 for development. A `microsoft/deberta-v3-base` student, trained only on title and review text, reached 0.9 accuracy and **0.89 macro F1** on this first iteration -> from experience, it could have been optimized, but for the hours spent, it helped form some discussion points.  
+
+### The budget has two phases
+
+Before using the student to choose new data, I need to know when it became informative at all. I trained the same architecture on increasing amounts of teacher-labelled data, always evaluating on the same 400-row holdout.
+
+| Teacher-labelled rows available | Holdout macro F1 | Behaviour |
+|---:|---:|---|
+| 100 | 0.416 | predicted only the majority class |
+| 250 | 0.416 | predicted only the majority class |
+| 500 | 0.810 | first useful student |
+| 1,000 | 0.841 | boundary begins to refine |
+| 2,600 | 0.882 | full public run |
+
+Each run reserved 20% of the available rows for validation, so the model fitted 80, 200, 400, 800 and 2,080 rows respectively.
+
+The jump between 250 and 500 labels is more important than a generic claim that more data helps. Below that threshold there is no useful student to guide the next purchase: the teacher budget is still buying basic task coverage. At 500 labels, the student becomes good enough to expose disagreements and weak regions. From that point onward, more labels continue to help, but each teacher call has an alternative: another random example, or an example chosen because the current model is weak there.
+
+This turns the curve into a budget policy. **Sample broadly until the student is informative; then spend increasingly around its errors.** If the price and latency of a teacher label are known, every point on the table can be expressed in money and elapsed time as well as F1.
+
+These are single training runs, not a smooth estimate of marginal returns. The exact increment between two points contains training and sampling noise. The robust feature is the change of regime: first set up a usable student, then use it to guide the remaining budget.
 
 I then inferred over both the training and holdout sets, turning the model back on the labels that produced it.
 
-The student disagreed with 65 of 2,600 training labels and 39 of 400 holdout labels. I reviewed those 104 rows using the original rules. Twenty-nine labels were clear enough to change: 19 in training and 10 in the holdout.
+The student disagreed with 65 of 2,600 training labels and 39 of 400 holdout labels. Those 104 rows were reviewed using the original prompt. Twenty-nine labels were clear enough to change: 19 in training and 10 in the holdout set.
 
 ![A model-guided audit reduces the number of labels that need manual review](/assets/images/llm_distillation/guided_label_audit.png)
 
-Reading **3.5% of the dataset** surfaced 29 corrections. More than a quarter of the reviewed disagreements were label errors.
+Reading **3.5% of the dataset** got us 29 corrections! More than a quarter of the reviewed disagreements were label errors.
 
 The disagreements were not automatically correct. Some of the student's most confident predictions were obvious model mistakes:
 
-| Shortened review | LLM label | Student | Audit |
+| Shortened review | LLM label | Student | Truth |
 |---|---|---|---|
 | “Handle attachment is chipped and sharp out of the box” | `no_defect` | `defect` | label wrong |
 | “It didn't seem to be filtering anything” | `no_defect` | `defect` | label wrong |
@@ -93,30 +113,14 @@ The queue still needs review; it is not an automatic relabelling system.
 Low-confidence sampling alone would miss much of this. Many informative disagreements were above 99% student confidence. Confidence tells us how strongly the student prefers one side of its learned boundary. It says nothing about whether the LLM label on the other side is correct.
 
 ---
-
-## Do not contaminate the evaluation
-
-The holdout disagreements were useful for finding questionable labels, but changing them creates an evaluation problem.
-
-After correcting 19 training labels and 10 holdout labels, the retrained student scored 0.9048 macro F1 on the corrected holdout. It is tempting to compare that with 0.8819 and claim a 2.3-point improvement.
-
-That comparison is invalid. The ten holdout labels were chosen because the original model disagreed with them. In fact, the original model scores approximately **0.914 macro F1** after only changing those evaluation labels.
-
-The correction pass improved the dataset, but this run alone does not show that changing 19 training rows improved generalization.
-
-The rule I took from this was:
-
-> Use model errors to audit evaluation labels, but measure the next training iteration on a separate frozen set that did not participate in row selection.
-
-This is the difference between repairing a benchmark and improving a model.
-
+ 
 ---
 
 ## From disagreements to an acquisition strategy
 
 Label correction is only the first use of inference over the training set. The more valuable use is deciding what to label next.
 
-Suppose the task has three ordered classes: `A`, `B`, and `C`. If most errors are `A ↔ B` and `B ↔ C`, then the student already tells us two things:
+In another (richer) problem where the task had three ordered classes: `A`, `B`, and `C`, there were a lot more useful patterns and borders to mine. If most errors are `A ↔ B` and `B ↔ C`, then the student already tells us two things:
 
 1. which boundaries are weak;
 2. which parts of the class interiors do not need more budget.
@@ -162,9 +166,9 @@ With the architecture fixed at DeBERTa-v3-base and evaluation kept on the same f
 
 The rounds included different targeted sources, so they do not prove that every targeted batch beats every random batch. A cleaner experiment would compare each batch with an equally sized random control.
 
-The same model nevertheless improved as the dataset was extended around known weaknesses. In a separate correction pass, changing only about 50 labels moved macro F1 by roughly two percentage points. Small edits can move a boundary decisively when the rows sit in the right place.
+The same model nevertheless improved as the dataset was extended around known weaknesses. In a separate correction iteration, changing only about 50 labels moved macro F1 by roughly two percentage points. Small edits can move a boundary decisively when the rows sit in the right place! This is critical.  
 
-Data is not the only lever. Once the label definitions are stable and the weak regions are better represented, persistent errors may point to model capacity rather than data quality. In this experiment, moving from the base student to a larger version on the same data added roughly another 1.8 percentage points of macro F1. A larger model is worth considering when the task depends on long context, nuanced language, or interactions between several cues—not as the first response to a noisy dataset.
+Data is not the only lever. Once the label definitions are stable and the weak regions are better represented, persistent errors may point to model capacity rather than data quality. In this experiment, moving from the base student to a larger version on the same data added roughly another 1.8 percentage points of macro F1. A larger model is worth considering when the task depends on long context, nuanced language, or interactions between several low signal terms as the first response to a noisy dataset.
 
 My order would be: fix the supervision, add data where it is missing, and increase model size only when the remaining errors suggest that the smaller student lacks the capacity for the task.
 
@@ -204,11 +208,11 @@ LLM-labelled data should be treated as a first version of a dataset, not as grou
 - **LLMs are inconsistent.** They make mistakes frequently enough to matter, especially when the question is difficult or the class definitions are close.
 - **A trained model can audit its own supervision.** Inference over the training set exposes contradictions, confident disagreements, duplicates, and regions the teacher labelled inconsistently.
 - **Evaluation labels also deserve inspection.** But once a holdout example is used to select a correction, it cannot provide an unbiased estimate of the resulting model.
-- **Use every cheap signal available.** Probability margins, neighbours, keywords, metadata, source-level patterns, and model disagreement can all help retrieve useful unlabelled rows.
-- **More data helps when it adds information.** Random sampling often buys examples from regions where the model is already correct. Boundary-targeted sampling has a better chance of changing what the model knows.
-- **Use the smallest model that is adequate.** Local CPU inference keeps routine dataset scans cheap. Increase capacity only when clean data and targeted acquisition leave errors that are genuinely about textual complexity.
-- **Measure marginal value.** Compare a targeted batch with an equally sized random batch, on a frozen holdout, before funding the next round.
+- **Use every cheap signal available.** Probability margins, neighbours, keywords, metadata, source-level patterns, and model disagreement can all help retrieve useful unlabelled rows. Use combinations of these low information signals.
+- **More data helps when it adds information.** Random sampling gets examples from regions where the model is already predictive. Boundary-targeted sampling has a better chance of changing what the model knows.
+- **Use the smallest model that is adequate.** Local CPU inference keeps routine dataset scans cheap and trivial to run at scale. 
+- **Measure marginal value.** Compare a targeted batch with an equally sized random batch, on a frozen holdout, before continuing to  the next iteration.
 
-Distillation leaves behind more than a smaller model. It gives us a cheap instrument for interrogating the dataset: bootstrap with the LLM, probe with the student, and spend the next label where the model is still uncertain, inconsistent, or wrong.
+Distillation leaves behind more than a smaller model. It gives us a cheap instrument that should be fully automated to question the dataset: bootstrap with the LLM, probe with the student, and spend the next label where the model is still uncertain, inconsistent, or wrong.
 
 **Do not spend the labelling budget teaching the model what it already knows.**
