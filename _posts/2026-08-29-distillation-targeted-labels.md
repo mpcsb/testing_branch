@@ -1,5 +1,5 @@
 ---
-title: "LLM distillation: optimization what to label?"
+title: "LLM distillation: optimization of the labelling process"
 excerpt: "2026-08-29 — Using a student model to audit LLM labels, find weak class boundaries, and spend the next labelling budget where it can still change the model."
 permalink: /distillation-targeted-labels/
 header:
