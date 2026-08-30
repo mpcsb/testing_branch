@@ -9,7 +9,7 @@ tags:
   - machine-learning
   - llm
   - distillation
-  - active-learning
+  - optimization
 share: true
 subscribe: true
 comments: false
