@@ -17,37 +17,38 @@ Code: [github.com/mpcsb/tb-embedding-quality](https://github.com/mpcsb/tb-embedd
 ## Why this matters
 
 
-We tend to treat **cosine distance** as if it were a true metric.  
-Cosine does **not** satisfy triangle inequality: explicitly proven **[here](https://arxiv.org/abs/2107.04071)**.
+We often use **cosine distance** as if the resulting neighborhoods behaved like a clean metric space.  
+Cosine distance does **not** satisfy triangle inequality: explicitly proven **[here](https://arxiv.org/abs/2107.04071)**.
 
 
-Metric indexes *do* rely on triangle inequality to prune search space, shown in  
+Some metric indexes *do* rely on triangle inequality to prune search space, shown in  
 **[Efficient Metric Indexing for Similarity Search](https://homes.cs.aau.dk/~csj/Papers/Files/2015_ChenICDE.pdf)**.
 
 > Metric indexing relies on triangle inequality for pruning.
 
-HNSW / FAISS don’t require strict metric axioms, but they **assume neighborhood consistency**:
-if a point is “closer,” greedy search expects it to lead to even closer points.
+HNSW / FAISS don’t require strict metric axioms, and this post does not benchmark retrieval directly.  
+That said, local neighborhood consistency matters: if a point is closer, greedy search and neighborhood expansion lead to other useful nearby points.
 
-That assumption only holds when the embedding space has stable geometry (i.e. distances behave consistently like in a true metric).
+This is the thing I wanted to measure: not whether retrieval succeeds or fails, but whether the embedding space has stable local geometry.
 
-### What causes the embedding geometry to break down
+### What can make the embedding geometry less stable
 
 Two independent things:
 
 1. **Bad corpus / domain mismatch**  
-   If the embedding model wasn't trained on similar text, semantics get scattered.
+   If the embedding model wasn't trained on similar text, semantics may not be properly represented.
 
 2. **Compression (PCA + quantization)**  
-   Removes structure. Local neighborhoods collapse. This is particularly bad because compression solves a lot of operational problems.
+   Removes structure. Local neighborhoods can become less coherent. This is particularly relevant because compression solves a lot of operational problems.
+   Compression comes in many flavours, and can be done with competence → this post illustrates a low effort compression to illustrate the point.
 
-Both lead to the same consequences:
+Both can lead to the same warning signs:
 
-- nearest neighbors stop being nearest  
+- local neighborhoods become less consistent  
 - triangle inequality fails locally, and fails harder as distances increase.  
-- retrieval (the R in RAG) becomes unstable
+- retrieval may become more fragile, especially when the system expands or reranks large candidate sets
 
-This post measures that directly.
+This post measures one approximation of that: how often local neighbor triplets violate triangle inequality.
 
 
 
@@ -91,14 +92,11 @@ The metric:
 Higher `clean_frac`: stable space.  
 Lower `clean_frac`: distances are not reliable.
 
-I use **Z3** only to answer a yes/no question:
+(Note: I originally used **Z3** for this check because I was exploring constraint solvers around the same time as the previous Z3 post. Z3 is not needed here: the candidate triplets are finite, and a direct loop over `(i, j, k)` would answer the same question without any performance loss.)
 
-> “Does *any* violating (j, k) exist for this anchor?”
+The useful part is the question itself:
 
-Brute-forcing all `(i, j, k)` triples did not work well when I tackled this in the past.  
-Z3 doesn't brute force. It treats distances as constraints and either:
-- finds a violating triplet, or
-- proves that none exists for that anchor.
+> “Does *any* neighbor-of-neighbor violate triangle inequality for this anchor, beyond tolerance τ?”
 
 
 ## Results
@@ -108,9 +106,9 @@ Three parts:
 
 ![umap_embeddings](/assets/images/embedding_quality/umap_embeddings.png)
 
-Raw embedding models produce tight clusters separated by corpus, whereas PCA+quantization blurs everything together causing the food and medical corpora to overlap with no separation!
+Raw embedding models produce tighter clusters separated by corpus, whereas PCA+quantization blurs the two corpora together.
 
-Already looks like geometry degradation.
+This already suggests some geometry degradation, although it is only a visual check.
 
 ---
 
@@ -121,11 +119,11 @@ Already looks like geometry degradation.
 
 Observations:
 
-- medical corpus: **solid geometry** (clean_frac ≈ 1.0)
-- food corpus: noisy semantics, which leads to poor geometry
-- PCA+quantized: catastrophic collapse
+- medical corpus: **stable local geometry** (clean_frac ≈ 1.0)
+- food corpus: noisy semantics, with lower local consistency
+- PCA+quantized: large drop in clean_frac
 
-Even at τ = 0.1 (a huge forgiveness margin), PCA+quantized still breaks.
+Even at τ = 0.1 (a large tolerance), PCA+quantized still shows many violations.
 
 ---
 
@@ -134,34 +132,33 @@ Even at τ = 0.1 (a huge forgiveness margin), PCA+quantized still breaks.
 ![stability_curves](/assets/images/embedding_quality/stability_curves.png)
 
 - raw embeddings degrade slowly as k expands
-- compressed embedding collapses by k=10
+- compressed embedding loses clean anchors quickly, especially by k=10
 
-If retrieval expands k during rerank / recall-then-rerank — expect garbage neighbors.
+If retrieval expands `k` during recall-then-rerank, this kind of geometry is a warning sign: the larger neighborhood may contain less coherent candidates.
 
 ---
 
 ## Key takeaways  
 
 1. **Embeddings are not guaranteed to form a metric space.**  
-   If triangle inequality fails, nearest neighbors may not be the nearest.  
-   Retrieval results may not be ideal.
+   Triangle inequality failures do not prove retrieval will fail, but they show that local neighborhoods are less metric-like than they may appear.
 
-2. **Compression destroys neighborhood structure.**  
-   PCA+quantization doesn’t 'reduce redundancy'. This step needs extra monitoring, as results can degrade **fast**.
+2. **Compression can damage neighborhood structure.**  
+   PCA+quantization doesn’t only 'reduce redundancy'. This step needs extra monitoring, as local consistency can degrade **fast**.
    
 
-3. **Weaker/less structured corpus result garbage geometry.**  
-   Not surprising.
+3. **Corpus quality matters.**  
+   The weaker, more repetitive corpus produced less stable local geometry.
 
-> Choose embeddings based on how well they preserve geometry.
+> Geometry is not retrieval, but it is worth measuring before choosing or compressing embeddings.
 
 
 
 ---
 
-Vector DBs assume a metric space.  
-Most embedding models don’t always return one.  
+Vector search does not always require a true metric, but it does depend on useful neighborhood structure.  
+Most embedding models do not guarantee that structure under every corpus and compression setting.  
 
-If the embedding space breaks (wrong model, wrong corpus, or compression) nearest neighbors aren't nearest and the R in RAG stands for roulette...
+If the embedding space becomes less coherent because of a wrong model, wrong corpus, or aggressive compression, nearest-neighbor retrieval becomes a weaker signal. The triangle-violation check is one way to notice that before treating the index as a black box.
 
  
