@@ -1,6 +1,6 @@
 ---
 title: "Re-Identification vs Anonymization Strength"
-excerpt: "2026-02-08 — Exploring how increasing k-anonymity affects data utility and the attacker’s ability to re-identify records."
+excerpt: "2026-02-08 — Exploring how increasing k-anonymity affects data utility and the attacker's ability to re-identify records."
 header:
   overlay_image: /assets/images/re_identification/header.png
 tags:
@@ -13,391 +13,100 @@ comments: false
 ---
 Code: [github.com/mpcsb/reidentification](https://github.com/mpcsb/reidentification)
 
+(I had a draft of this experiment sitting around for a while. This was the question: as records become harder to identify, what useful details disappear?)
 
+## The question
 
-## Re-Identification Risk vs k-Anonymity: An Experimental Walkthrough
+I generated a small synthetic dataset, anonymized its identifying attributes at increasing values of `k`, and tried to link the anonymized records back to the originals.
 
-Most discussions of anonymization focus on buzzwords like **k-anonymity** and **differential privacy**, but few dig into what actually happens to a dataset as anonymity strength increases.  
+The aim was not to prove that k-anonymity is sufficient. It was to observe how re-identification risk and data resolution move as anonymization becomes more aggressive. In particular, I wanted to see whether the two changed at the same rate, and whether every attribute paid the same utility cost.
 
-In this post, we conduct a full experimental walkthrough to quantify how raising the k-anonymity level impacts both **privacy** (re-identification risk) and **data utility**.  
+## Setup
 
-We simulate an attacker with partial knowledge trying to re-identify individuals, and we measure how data quality degrades as we ramp up the anonymization.  
-The goal is to illuminate where the balance lies between keeping data useful and keeping individuals anonymous.
+The dataset contains 2000 synthetic individuals and four fields:
 
----
+| Field | Role in the experiment |
+|---|---|
+| `age` | Quasi-identifier |
+| `zip3` | Quasi-identifier representing a broad location |
+| `sex` | Quasi-identifier |
+| `lab_glucose` | Continuous measurement not used for anonymization or matching |
 
-## Data Generation and Anonymization Setup
+I varied `k` from 1 to 20. A dataset is k-anonymous with respect to these quasi-identifiers when every released combination of age, ZIP3 and sex describes at least `k` records. To reach that condition, the routine groups or suppresses values until small groups disappear.
 
-For our experiment, we generated a synthetic dataset of **2000 individuals**, each with the following fields:
+There were three main controls. Ages could be placed in bins from one to ten years wide; ages above a threshold could be top-coded, such as `75+`; and ZIP3 values below a frequency threshold could be replaced with `Other`. I ran combinations of these settings because `k` is only part of the story. Two releases with the same `k` can expose quite different amounts of detail depending on how their groups were formed.
 
-| Field        | Description                                                    |
-|--------------|----------------------------------------------------------------|
-| `age`        | Numerical age (used as a quasi-identifier)                     |
-| `zip3`       | 3-digit ZIP code prefix (regional location, quasi-identifier)  |
-| `sex`        | Binary sex attribute (quasi-identifier)                        |
-| `lab_glucose` | Continuous lab glucose level (a target variable *not* used in anonymization) |
+The simulated attacker knows a person's exact age, sex and ZIP3, but does not know their glucose measurement. That knowledge is limited, although the matching procedure itself is fairly strong. Rather than matching each row greedily, I used the linear sum assignment solver in Google OR-Tools to find a globally consistent, one-to-one assignment between the anonymized and original datasets.
 
-We treat **age**, **zip3**, and **sex** as the quasi-identifiers (QIs) that will be subject to anonymization.
+For an anonymized record \(a_i\) and an original record \(o_j\), the matching cost was:
 
-The value of **k** in k-anonymity was varied from **1 to 20**.  
-A k-anonymity requirement means each record must be indistinguishable from at least **k–1 others** with respect to these QIs.
+\[
+c(i,j) = d_{age}(a_i,o_j) + d_{zip}(a_i,o_j) + d_{sex}(a_i,o_j)
+\]
 
-To achieve this, an anonymization routine **groups and generalizes** records until every combination of QIs occurs in at least k records.  
-In practical terms, as k increases, the algorithm must increasingly **generalize (coarsen)** or **suppress** details in the QIs to satisfy the larger group size.
+An original age inside the released age range receives no age penalty; an age outside it receives a larger one. ZIP and sex contribute their own penalties when they do not fit the released values. The solver minimizes the sum of these costs while allowing each original record to be used at most once. This matters because a plausible match for one row can change the best assignment for many other rows.
 
----
+I measured success with Hit@1: the fraction of anonymized rows assigned to their true original record. A Hit@1 of 0.5 means that the first and only guess was correct for half of the rows.
 
-### Parameters explored
+## How quickly re-identification falls
 
-We explored a few key parameters that control how the data is generalized:
+The heatmaps show Hit@1 across values of `k` and two of the generalization controls. The first varies the age-bin width without rare-ZIP suppression. The second keeps one-year age bins and varies the threshold used to collapse rare ZIP3 values.
 
-- **Age bin width:** We varied age grouping from 1-year bins (no grouping beyond integer ages) up to 10-year bins. Larger bin widths mean ages get lumped into broader ranges (e.g., 30–39).
-- **Top-coding of age:** Extreme ages were top-coded above a threshold (e.g., all ages 75 and above recorded as `"75+"`). This prevents very old ages from standing out.
-- **Rare ZIP suppression:** Low-frequency ZIP3 regions were grouped into an `"Other"` category once their count fell below a threshold. If a region is too unique, it gets collapsed to hide outliers.
+![Hit@1 by k and age-bin width, with rare-ZIP suppression disabled](/assets/images/re_identification/heatmap_mean_hit_rate_rare_0.png)
 
-By adjusting these knobs, we impose different anonymization strategies.  
-For each value of **k** (and each combination of binning/top-coding settings), we produced an anonymized version of the dataset and evaluated how much information was lost in the process.
+![Hit@1 by k and the rare-ZIP threshold, using one-year age bins](/assets/images/re_identification/heatmap_mean_hit_rate_by_zip_rarity_age1.png)
 
+The first useful result appears at `k=1`. Hit@1 reaches only a little over 0.5 in the least generalized configurations, even though there is no deliberate requirement to place records into larger anonymity groups. Age, sex and ZIP3 are not unique keys: several people can share the same combination. Once that happens, the attacker cannot distinguish all of them using these attributes alone. Duplicate quasi-identifiers therefore set a ceiling on linkage success before stronger anonymization begins.
 
-## Attacker Context: Partial Knowledge Threat Model
+Increasing `k` lowers Hit@1 across the tested settings. Much of the reduction happens in the first few steps: the difference between `k=1` and the low-to-moderate values is much larger than the differences among the highest values shown. By `k=10`, Hit@1 is low throughout these configurations.
 
-Anonymization is only meaningful relative to an attacker’s knowledge.  
-In our scenario, we simulate an attacker who has **partial information** about individuals — specifically, the attacker knows an individual's:
+The horizontal differences are also important. Wider age bins reduce linkage success even when `k` is fixed, and collapsing rare ZIP3 values changes the result again. It would be misleading to attribute every change in the heatmaps to `k` alone. The particular generalization rules determine what evidence remains available to the attacker.
 
-- age  
-- general location (ZIP3 region)  
-- sex  
+I have not calculated a random-assignment baseline here, so "low" is the useful description for the later Hit@1 values—not "random chance."
 
-(e.g., from a data leak or public records).
+## What the anonymization changed
 
-This is a common threat model for re-identification:  
-an adversary might obtain someone's demographic details from a breached source and then try to find that person in an anonymized dataset (such as medical or survey data) released publicly.
+I tracked utility separately for ZIP3, age and glucose. This is deliberately simpler than testing a downstream model, but it reveals which parts of the release were actually changed.
 
-The attacker’s goal is **re-identification**:  
-to match each anonymized record to the corresponding real individual by comparing the quasi-identifiers.
+ZIP utility compares the original and released ZIP3 distributions using \(1 - \frac{1}{2}L_1\), where 1 would mean that their category shares are identical. It declines from about 0.77 at `k=1` to about 0.73 at `k=20`.
 
-Importantly, the attacker does **not** know the sensitive value (`lab_glucose`) in our case;  
-they only leverage the QIs that are also present (albeit generalized) in the anonymized data.
+![ZIP-level utility as k increases](/assets/images/re_identification/zip_utility_vs_k.png)
 
-This kind of attack is known as a **record linkage attack**, using the assumption that if an anonymized entry shares a unique combination of age, region, and sex with a known individual’s data, they are likely the same person.
+This is a gradual, measurable loss rather than a collapse. It means that suppressing rare regions changes the overall ZIP composition, but this metric alone does not support a claim that a particular percentage of geographic granularity has disappeared. It measures similarity between distributions, not the practical value of the field for every possible analysis.
 
-This threat model underscores why k-anonymity focuses on QIs:  
-even innocuous-seeming attributes like age and ZIP code can triangulate someone’s identity when combined.
+Age follows a different pattern. The released mean is already about two years below the original at `k=1`. As `k` rises, the drift grows to roughly three years.
 
-Next, we describe how our simulated attacker performs the re-identification.
+![Difference between anonymized and original mean age as k increases](/assets/images/re_identification/age_drift_vs_k.png)
 
----
+The distinction between those two amounts matters. Moving from low to high `k` adds around one further year of drift; it does not create the whole three-year difference. The initial offset appears to come from the baseline representation and generalization procedure, including binning and top-coding.
 
-## Attacker’s Re-identification Strategy (Global Matching)
+Glucose, meanwhile, stays essentially unchanged. The routine carries it through without transforming it because it is neither a quasi-identifier nor part of the matching cost. This does not establish that the anonymized data would remain useful for every glucose analysis—relationships with generalized age or location might still matter—but it does confirm that the marginal glucose values themselves were preserved.
 
-How does our attacker try to re-identify records?
+Taken together, these measurements are more informative than a single utility score. ZIP composition shifts gradually, mean age has a baseline offset followed by additional drift, and glucose is left alone. Utility loss depends on the attribute, the transformation applied to it, and the analysis someone wants to perform later.
 
-Instead of using a simple greedy matching (checking each anonymized record independently),  
-we implement a **global optimization strategy**.
+## Risk and utility together
 
-We use a **bipartite assignment solver** (Google OR-Tools’ linear sum assignment solver) to find the optimal one-to-one matching between anonymized records and original records that best aligns their attributes.
+The next plots put Hit@1 and utility on the same axes. They compare selected age-bin widths and rare-ZIP thresholds, with each point labelled by `k`. I think of these as trade-off curves rather than strict Pareto frontiers: the figures include tested configurations, but I have not removed every dominated point or established that the curves contain all efficient choices.
 
-### Cost-based Matching
+![Re-identification risk and age utility for two age-bin widths](/assets/images/re_identification/privacy_utility_frontier_age_compare.png)
 
-We define a cost for matching an anonymized record *aᵢ* with an original record *oⱼ* based on their differences in quasi-identifiers:
+![Re-identification risk and ZIP utility for three rare-ZIP thresholds](/assets/images/re_identification/privacy_utility_frontier_zip_compare.png)
 
-```
-cost(i, j) = d_age(a_i, o_j) + d_zip(a_i, o_j) + d_sex(a_i, o_j)
-```
+In this simulation, the first increases in `k` reduce linkage success more quickly than they damage these utility measures. Later increases still reduce risk, but the gains become smaller while detail continues to change. The exact path also depends on the generalization setting: changing the age-bin width or ZIP threshold can move a configuration even when `k` stays the same.
 
-Each **d** term is a distance measure for that attribute.
+There is no universal sweet spot in these plots. An acceptable release for estimating an overall glucose distribution may not be acceptable for studying small geographic groups, and neither utility metric says how damaging a successful match would be. Choosing an operating point requires a concrete use for the data and a threat model, not only a preferred value of `k`.
 
-- If an anonymized age is a range (due to binning) and the original age falls within that range, the age distance may be zero; if it falls outside, the distance increases.
-- If an anonymized ZIP3 was generalized to `"Other"`, any specific ZIP from the original will incur a cost when compared to `"Other"`.
-  
-These distances capture how well an original record fits the generalized form of an anonymized record.  
-Lower cost → the two records are more similar across QIs.
+## Limitations and final remarks
 
-We then solve for the assignment **π(i)** that minimizes the total cost of matching all anonymized records to distinct original records:
+This is a controlled simulation with one synthetic population, one anonymization routine and one attacker model. The attacker knows only age, sex and ZIP3. Given those attributes, however, the attack is not especially basic: global one-to-one optimization is stronger than independently choosing the nearest row. An attacker with extra clues, access to another leak, or a probabilistic linkage model could obtain different results. An attacker with less accurate background information could do worse.
 
-```
-min_π  Σ_i  cost(i, π(i))
-subject to: each original record is matched at most once
-```
+The utility side is narrow as well. Distributional ZIP similarity and mean-age drift are useful diagnostics, but they are not substitutes for evaluating the analyses the released data is meant to support. Glucose remaining numerically unchanged is also not a guarantee that every relationship involving glucose survives generalization.
 
-This optimization finds the **best overall matching** between the two datasets.
+The main observations I would keep from the experiment are:
 
-By considering all records jointly, the attacker avoids making locally optimal but globally inconsistent matches.
+- Duplicate quasi-identifiers limit re-identification even at `k=1`.
+- Most of the reduction in Hit@1 occurs at low-to-moderate `k` in this setup.
+- The attacker's knowledge is limited, but the assignment method uses the whole dataset jointly.
+- Age, ZIP3 and glucose lose utility in different ways because they are transformed differently.
 
-Even if each anonymized record individually has multiple plausible matches, the solver finds a **globally consistent** assignment.  
-The outcome is an assignment pairing most anonymized records with specific original record guesses.
-
----
-
-### Measuring Re-identification Success: Hit@1
-
-To evaluate the attack, we use the **Hit@k** metric common in information retrieval.
-
-A “hit” means the correct original record appears within the attacker’s **top k** guesses for an anonymized record.
-
-In our case:
-
-- the solver produces **one** best match per anonymized record  
-→ effectively Hit@1 only  
-
-So we focus on **Hit@1**, the fraction of anonymized records where the attacker’s top guess is correct.
-
-A Hit@1 of **50%** means the attacker correctly re-identified half of the individuals on the first guess.
-
-(Hit@5 would allow up to 5 guesses per record, but we stick with the strictest measure.)
-
-With the attack strategy and success metric defined, we now examine how re-identification risk and data utility change as anonymization strength increases.
-
-## Results
-
-## Re-identification Success vs. Anonymity Level
-
-We first examine how the attacker's success rate (**Hit@1**) changes as the anonymity parameter **k** increases.  
-Intuitively, higher k (stronger anonymity) should make re-identification harder.
-
-Our experiments confirmed this:  
-**the attacker’s success drops dramatically as k grows.**
-
----
-![Hit@1 heatmap by ZIP rarity and age bin](/assets/images/re_identification/heatmap_mean_hit_rate_rare_0.png)
-
-![A heatmap showing the attacker’s Hit@1 (darker means lower success) for various anonymity settings.](/assets/images/re_identification/heatmap_mean_hit_rate_by_zip_rarity_age1.png)
-
-Each cell is the average Hit@1 across trials for a given combination of k (y-axis) and age bin width (x-axis). Success rates plummet as k increases. Notably, there is a sharp drop in attacker success once k is around 5–7, indicating the onset of strong anonymity where the attack loses traction.*
-
----
-
-Even at **k = 1** (minimal anonymization), the attacker does **not** get a 100% hit rate.  
-The maximum Hit@1 observed hovered just above **~50%**.
-
-This is because even in the **raw data**, some individuals share the same QI values  
-(e.g., multiple people with the same age, ZIP3, and sex),  
-so they cannot all be uniquely identified by QIs alone.  
-This sets an **upper ceiling** on re-identification success.
-
-As k increases from **1 to 5**, Hit@1 falls gradually.  
-Beyond **k ~ 5–7**, it **plummets sharply**.  
-
-By **k ≥ 10**, the attacker’s top-guess accuracy is very low  
-(approaching random chance in many settings).
-
-**Summary:** raising k dramatically improves privacy, especially after the mid-range threshold where anonymity “kicks in.”
-
----
-
-## Data Utility Loss as k Increases
-
-Stronger anonymization comes at the cost of **data utility**.
-
-We tracked several metrics to quantify how the dataset’s analytical value degrades as k increases:
-
-- **ZIP Utility:**  
-  Measures how well the distribution of ZIP3 values is preserved.  
-  Defined between 0–1, where 1.0 means the anonymized ZIP distribution exactly matches the original.  
-  (Computed as \(1 - \frac{1}{2} L_1\) distance.)
-
-- **Mean Age Drift:**  
-  The difference in the average age between anonymized and original data.  
-  Captures how much anonymization distorts age information.
-
-- **Mean Glucose:**  
-  A sanity check for a **non-QI variable** that should remain unchanged.
-
----
-
-Two of these metrics, **ZIP Utility** and **Age Drift**, clearly illustrate the non-linear loss of detail as k grows.
-
----
-
-
-![*ZIP Utility (y-axis) versus anonymity level k (x-axis).](/assets/images/re_identification/zip_utility_vs_k.png)
-
-The line shows that as k increases, the ZIP code distribution retains less and less of its original detail.  
-Once k exceeds about 8, we see a notable drop in ZIP Utility.  
-At k = 16, roughly 25–30% of the geographic granularity is lost.*
-
----
-
- 
-![*Mean Age Drift (in years) as a function of k. ](/assets/images/re_identification/age_drift_vs_k.png)
-
-A negative drift means the anonymized data’s average age is lower than the original.  
-At high anonymity levels (k ≈ 20), the mean age is about 3 years lower.  
-Top-coding and heavy binning compress the age distribution toward the middle.*
-
----
-
-Reassuringly, **Mean Glucose** remained essentially unchanged across all k values (drift ~0).  
-This confirms that the anonymization procedure targeted only QIs (age, zip, sex) and did not distort unrelated attributes.
-
-Overall:
-
-- For small increases in **k (1–5)**, utility remains close to original fidelity.  
-- Beyond **k ≈ 5–8**, generalization becomes aggressive and utility drops sharply.  
-
-This suggests a **“sweet spot”** where privacy improves significantly while preserving substantial utility, after which additional privacy becomes expensive in terms of information loss.
-
-
-## The Privacy–Utility Frontier
-
-It is helpful to visualize the inherent trade-off between privacy and utility.
-
-Each anonymization configuration we tested  
-(a specific combination of **k** and generalization parameters)  
-can be thought of as a single point in a two-dimensional space:
-
-- one axis = **privacy outcome** (e.g., Hit@1 re-identification success)  
-- the other axis = **utility outcome** (e.g., how many candidate matches remain / how much detail is preserved)
-
-Plotting all configurations reveals a clear **privacy–utility frontier**.
-
----
-
- Each point represents one anonymization scenario (specific k and parameter settings), plotted by its resulting privacy risk (y-axis: Hit@1 success rate) and a utility indicator (x-axis: number of plausible candidate matches per anonymized record, which correlates with retained information).
-
-![Privacy–utility frontier (age)](/assets/images/re_identification/privacy_utility_frontier_age_compare.png)
-
-![Privacy–utility frontier (ZIP)](/assets/images/re_identification/privacy_utility_frontier_zip_compare.png)
-
-
-
-The plot forms a **downward-sloping curve**.
-
-- Configurations with **lower re-identification risk** invariably have **lower data utility**.
-- The initial part of the curve is **steep** — meaning you can reduce risk significantly with only a small drop in utility.
-- The later part of the curve **flattens** — meaning achieving tiny extra privacy gains requires **large utility sacrifices**.
-
-In simpler terms:
-
-> You can’t have it all.  
-> Past a certain point, making the data “very anonymous” makes it statistically or analytically blurry.
-
-The scatter shows every dataset version lies somewhere on this curve.  
-Deciding where to operate is a **policy choice**:
-
-- **low k** → high utility, low privacy  
-- **high k** → high privacy, low utility  
-
-
-## Conclusion and Discussion
-
-Our empirical exploration highlights how increasing **k-anonymity** leads to **diminishing returns**.
-
-For **modest anonymity levels** (up to around k = 5):
-
-- Each increment in k yields a **big drop** in re-identification risk.  
-- The corresponding hit to data utility is **mild**.
-
-Beyond that, however, the trade-off worsens:
-
-- Pushing k higher gives **smaller and smaller privacy benefits**.  
-- Meanwhile, it **rapidly erodes** the granularity and usefulness of the data.
-
-This is essentially a manifestation of a **Pareto frontier** —  
-there comes a point where you must give up **a lot** of utility to get **a little** more privacy.
-
----
-
-### Attribute Sensitivity
-
-Different data attributes showed **different sensitivity** to anonymization:
-
-- **Geographic detail (ZIP3)** degraded *first*.  
-  Many ZIPs are rare → must be collapsed to `"Other"` as k grows.
-
-- **Age** was more resilient but eventually smoothed by  
-  **wide bins** and **top-coding** → resulting in shifts such as  
-  a **3-year drop** in average age at high k.
-
-- **lab_glucose** remained unchanged.  
-  Since glucose was *not* part of the QIs, anonymization preserved it.  
-  This demonstrates that non-identifying variables can remain intact  
-  even as identifying information is stripped away.
-
-This attribute-by-attribute difference shows that **utility loss is domain-specific**.  
-Some features lose meaning faster than others under anonymization.
-
----
-
-### About the Attacker Model
-
-It is also worth noting that our attack model was relatively **basic**.
-
-We assumed the attacker only knows:
-
-- age  
-- sex  
-- region (ZIP3)
-
-And they use a **straightforward optimal matching algorithm**.
-
-A more determined adversary might:
-
-- have **additional clues** (e.g., approximate health measurements)  
-- access **multiple leaks**  
-- use **statistical models** to narrow matches  
-- use Bayesian linkage, ML-based scoring, or constraint solvers
-
-Such an attacker could defeat k-anonymity more often.  
-Therefore the Hit@1 rates in our experiment may be **optimistic**.  
-Real-world re-identification risk could be **higher**.
-
-This highlights that anonymization should **not** be:
-
-> a one-time, set-and-forget protection mechanism.
-
-You must consider **evolving threat models**  
-and possibly combine k-anonymity with other techniques:
-
-- noise addition  
-- perturbation  
-- differential privacy  
-- synthetic data generation  
-- secure linkage systems
-
----
-
-### Finding the Balance
-
-Ultimately, choosing an anonymization level is about **balancing privacy risk against data usability**.
-
-Our experiment puts **concrete numbers** on that balance:
-
-- The initial drop in re-id risk (as k rises from 1→5) is **encouraging**.  
-- It means we can significantly protect identities **without** immediately destroying utility.
-- But the flattening of the curve at higher k reminds us that  
-  **aggressive anonymization** yields minimal extra privacy at **huge cost**.
-
-Decision-makers should consider what level of risk is acceptable  
-given the **purpose** of the data.
-
-For many cases:
-
-- **Moderate k** (enough to prevent easy pinpointing of individuals)  
-  is **sufficient** and maintains usefulness.
-
-- **High k** may make the dataset **practically unusable**.
-
----
-
-## Key Takeaways
-
-- **k-anonymity trades precision for privacy**.  
-  Generalization and suppression remove detail from QIs.
-
-- **Privacy gains are strong at first, then plateau**.  
-  Beyond mid-range k, utility collapses faster than privacy improves.
-
-- **Utility loss is nonlinear and varies by attribute**.  
-  Sparse attributes like ZIP lose meaning earlier.
-
-- **Non-identifying attributes can remain intact**.  
-  Good for preserving analytical value.
-
-- **Past moderate k, returns diminish greatly**.  
-  More anonymity → minimal privacy gain, major utility loss.
-
-In conclusion:  
-Effective anonymization is about finding the **balance**:  
-protecting individuals without rendering data barren for analysis.  
-Our findings illustrate that balance clearly for this dataset under different settings.
+For this dataset, increasing `k` made correct linkage less common, with the largest changes arriving early. What disappeared from the data was less uniform: ZIP composition moved gradually, age drifted a little further from an existing baseline offset, and glucose values stayed intact. That conditional result is more useful than a general claim that higher `k` either solves re-identification or destroys the dataset.
