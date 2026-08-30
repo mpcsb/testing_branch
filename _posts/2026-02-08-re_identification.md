@@ -13,7 +13,7 @@ comments: false
 ---
 Code: [github.com/mpcsb/reidentification](https://github.com/mpcsb/reidentification)
 
-(I had a draft of this experiment sitting around for a while. This was the question: as records become harder to identify, what useful details disappear?)
+(I had a draft of this experiment sitting around for a while. Essentially a private exploration of privacy and utility)
 
 ## The question
 
